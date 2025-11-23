@@ -4724,11 +4724,13 @@
             // Renderer - Optimized for performance
             const renderer = new THREE.WebGLRenderer({ 
                 alpha: true, 
-                antialias: true,
-                powerPreference: 'high-performance'
+                antialias: false, // Disabled for better performance
+                powerPreference: 'high-performance',
+                stencil: false,
+                depth: true
             });
             renderer.setSize(width, height);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // Reduced for performance
             
             // Force canvas visibility with inline styles
             const canvas = renderer.domElement;
@@ -4756,7 +4758,7 @@
 
             // Earth properties - Optimized for speed
             const earthRadius = 2.5; // Earth radius
-            const earthSegments = 64; // Reduced from 128 for better performance
+            const earthSegments = 32; // Optimized for performance
 
             // High-detail sphere geometry
             const geometry = new THREE.SphereGeometry(earthRadius, earthSegments, earthSegments);
@@ -4776,7 +4778,7 @@
             console.log('✅ Wireframe added');
 
             // Number particles system (numbers 1-10) - Earth made of numbers
-            const particleCount = 2000; // Reduced from 3000 for better performance
+            const particleCount = 1000; // Optimized for performance
             const numberParticles = [];
             const particleVelocities = [];
             const numbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
@@ -4789,10 +4791,10 @@
                 canvas.height = 128;
                 const context = canvas.getContext('2d');
                 context.fillStyle = '#00FFE5';
-                context.font = 'bold 100px monospace'; // Increased for visibility
+                context.font = 'bold 50px monospace'; // Optimized size
                 context.textAlign = 'center';
                 context.textBaseline = 'middle';
-                context.fillText(num, 64, 64);
+                context.fillText(num, 32, 32); // Adjusted for smaller canvas
                 const texture = new THREE.CanvasTexture(canvas);
                 texture.needsUpdate = true;
                 numberTextures[num] = texture;
