@@ -5321,14 +5321,21 @@
             if (window.THREE) {
                 // Wait for page to be fully interactive before initializing heavy 3D
                 if (document.readyState === 'complete') {
-                    setTimeout(initEarth, 500);
+                    setTimeout(() => {
+                        console.log('Initializing Earth...');
+                        initEarth();
+                    }, 500);
                 } else {
                     window.addEventListener('load', () => {
-                        setTimeout(initEarth, 500);
+                        setTimeout(() => {
+                            console.log('Initializing Earth after load...');
+                            initEarth();
+                        }, 500);
                     });
                 }
             } else {
                 // Retry if Three.js hasn't loaded yet
+                console.log('Waiting for Three.js to load...');
                 setTimeout(initEarthLazy, 100);
             }
         }
