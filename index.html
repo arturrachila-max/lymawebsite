@@ -4670,61 +4670,73 @@
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
             container.appendChild(renderer.domElement);
 
-            // Mail/Envelope Logo properties - classic envelope shape with folded flap
-            const logoWidth = 4;
-            const logoHeight = 3;
-            const logoDepth = 0.2;
-            const flapHeight = 1.5; // Height of triangular flap
-            const flapAngle = Math.PI / 4; // 45 degrees - flap folded down
-            const logoSegments = 32; // Optimized for performance
+            // 3D @ Symbol properties
+            const atSymbolRadius = 2.5; // Outer radius of @ symbol
+            const atSymbolThickness = 0.3; // Thickness of the @ symbol
+            const atSymbolSegments = 64; // High detail for smooth curves
+            const atSymbolTubularSegments = 32; // Segments around the tube
 
-            // Create custom envelope geometry with folded triangular flap
-            const envelopeGroup = new THREE.Group();
+            // Create 3D @ symbol group
+            const atSymbolGroup = new THREE.Group();
             
-            // Main envelope body (rectangular)
-            const bodyGeometry = new THREE.BoxGeometry(logoWidth, logoHeight, logoDepth, logoSegments, logoSegments, 1);
-            const bodyEdges = new THREE.EdgesGeometry(bodyGeometry, 0.005);
-            const bodyWireframe = new THREE.LineSegments(bodyEdges, new THREE.LineBasicMaterial({
+            // Outer ring (torus) - main circle of @ symbol
+            const outerRingGeometry = new THREE.TorusGeometry(
+                atSymbolRadius, // radius
+                atSymbolThickness, // tube radius
+                atSymbolSegments, // radial segments
+                atSymbolTubularSegments // tubular segments
+            );
+            const outerRingEdges = new THREE.EdgesGeometry(outerRingGeometry, 0.01);
+            const outerRingWireframe = new THREE.LineSegments(outerRingEdges, new THREE.LineBasicMaterial({
                 color: 0x00FFE5,
                 transparent: true,
                 opacity: 0.85,
                 linewidth: 1
             }));
-            bodyWireframe.position.y = 0; // Center the body
-            bodyWireframe.visible = true; // Visible for better definition
-            envelopeGroup.add(bodyWireframe);
+            outerRingWireframe.rotation.x = Math.PI / 2; // Rotate to be vertical
+            outerRingWireframe.visible = true;
+            atSymbolGroup.add(outerRingWireframe);
 
-            // Triangular flap folded down (classic mail icon style)
-            const flapShape = new THREE.Shape();
-            flapShape.moveTo(-logoWidth / 2, 0);
-            flapShape.lineTo(0, flapHeight);
-            flapShape.lineTo(logoWidth / 2, 0);
-            flapShape.lineTo(-logoWidth / 2, 0);
+            // Inner "a" part of @ symbol - create as a curved tube
+            // This forms the inner loop that creates the @ shape
+            const innerRadius = atSymbolRadius * 0.6; // Inner radius for the "a" part
+            const innerCurve = new THREE.CatmullRomCurve3([
+                new THREE.Vector3(innerRadius * 0.3, -innerRadius * 0.5, 0),
+                new THREE.Vector3(innerRadius * 0.8, -innerRadius * 0.2, 0),
+                new THREE.Vector3(innerRadius * 0.9, innerRadius * 0.3, 0),
+                new THREE.Vector3(innerRadius * 0.6, innerRadius * 0.7, 0),
+                new THREE.Vector3(innerRadius * 0.2, innerRadius * 0.5, 0),
+                new THREE.Vector3(-innerRadius * 0.1, innerRadius * 0.2, 0),
+                new THREE.Vector3(-innerRadius * 0.2, -innerRadius * 0.2, 0),
+                new THREE.Vector3(innerRadius * 0.1, -innerRadius * 0.4, 0),
+                new THREE.Vector3(innerRadius * 0.3, -innerRadius * 0.5, 0) // Close the loop
+            ]);
             
-            const flapGeometry = new THREE.ShapeGeometry(flapShape);
-            const flapEdges = new THREE.EdgesGeometry(flapGeometry, 0.005);
-            const flapWireframe = new THREE.LineSegments(flapEdges, new THREE.LineBasicMaterial({
+            const innerTubeGeometry = new THREE.TubeGeometry(
+                innerCurve,
+                atSymbolSegments,
+                atSymbolThickness * 0.8,
+                16,
+                false
+            );
+            const innerTubeEdges = new THREE.EdgesGeometry(innerTubeGeometry, 0.01);
+            const innerTubeWireframe = new THREE.LineSegments(innerTubeEdges, new THREE.LineBasicMaterial({
                 color: 0x00FFE5,
                 transparent: true,
                 opacity: 0.85,
                 linewidth: 1
             }));
-            // Position flap at top of envelope, folded down
-            flapWireframe.position.y = logoHeight / 2;
-            flapWireframe.position.z = logoDepth / 2;
-            // Rotate flap down (folded over)
-            flapWireframe.rotation.x = -flapAngle; // Fold down at 45 degrees
-            flapWireframe.rotation.z = 0;
-            flapWireframe.visible = true; // Visible for better definition
-            envelopeGroup.add(flapWireframe);
+            innerTubeWireframe.rotation.x = Math.PI / 2; // Rotate to match outer ring
+            innerTubeWireframe.visible = true;
+            atSymbolGroup.add(innerTubeWireframe);
 
-            envelopeGroup.position.y = 0.5;
-            scene.add(envelopeGroup);
+            atSymbolGroup.position.y = 0.5;
+            scene.add(atSymbolGroup);
             
             // Store references for animation
-            const wireframe = envelopeGroup; // Use group as wireframe reference
+            const wireframe = atSymbolGroup; // Use group as wireframe reference
 
-            // Number particles system (numbers 1-10) - Mail icon made of numbers
+            // Number particles system (numbers 1-10) - @ symbol made of numbers
             const particleCount = 6000; // Increased for better definition
             const numberParticles = [];
             const particleVelocities = [];
@@ -4747,47 +4759,30 @@
                 numberTextures[num] = texture;
             });
             
-            // Create number sprites covering the Outlook logo surface - envelope shape with flap
+            // Create number sprites covering the @ symbol surface
             for (let i = 0; i < particleCount; i++) {
                 let x, y, z;
                 const surfaceType = Math.random();
                 
-                if (surfaceType < 0.4) {
-                    // Front face of envelope body (40% of particles)
-                    x = (Math.random() * 2 - 1) * logoWidth / 2;
-                    y = (Math.random() * 2 - 1) * logoHeight / 2;
-                    z = logoDepth / 2;
-                } else if (surfaceType < 0.5) {
-                    // Back face (10%)
-                    x = (Math.random() * 2 - 1) * logoWidth / 2;
-                    y = (Math.random() * 2 - 1) * logoHeight / 2;
-                    z = -logoDepth / 2;
-                } else if (surfaceType < 0.7) {
-                    // Triangular flap folded down (20%) - classic mail icon
-                    const u = Math.random() * 2 - 1; // -1 to 1
-                    const v = Math.random(); // 0 to 1
-                    // Flap is triangular, so constrain x based on v
-                    const maxX = (1 - v) * logoWidth / 2; // Triangle gets narrower toward tip
-                    x = (Math.random() * 2 - 1) * maxX;
-                    y = logoHeight / 2 + v * flapHeight * Math.cos(flapAngle);
-                    // Calculate z for folded flap (angled down)
-                    z = logoDepth / 2 + v * flapHeight * Math.sin(flapAngle);
-                } else if (surfaceType < 0.85) {
-                    // Top edge of envelope body (15%)
-                    x = (Math.random() * 2 - 1) * logoWidth / 2;
-                    y = logoHeight / 2;
-                    z = (Math.random() * 2 - 1) * logoDepth / 2;
-                } else if (surfaceType < 0.95) {
-                    // Left/Right sides (10%)
-                    const side = Math.random() > 0.5 ? 1 : -1;
-                    x = side * logoWidth / 2;
-                    y = (Math.random() * 2 - 1) * logoHeight / 2;
-                    z = (Math.random() * 2 - 1) * logoDepth / 2;
+                if (surfaceType < 0.7) {
+                    // Outer ring (torus) - 70% of particles
+                    const theta = Math.random() * Math.PI * 2; // Angle around the ring
+                    const phi = Math.random() * Math.PI * 2; // Angle around the tube
+                    const radius = atSymbolRadius + Math.cos(phi) * atSymbolThickness;
+                    x = Math.cos(theta) * radius;
+                    y = Math.sin(theta) * radius;
+                    z = Math.sin(phi) * atSymbolThickness;
                 } else {
-                    // Bottom edge (5%)
-                    x = (Math.random() * 2 - 1) * logoWidth / 2;
-                    y = -logoHeight / 2;
-                    z = (Math.random() * 2 - 1) * logoDepth / 2;
+                    // Inner "a" part of @ symbol - 30% of particles
+                    // Distribute along the inner curve
+                    const t = Math.random(); // Parameter along the curve
+                    const point = innerCurve.getPoint(t);
+                    // Add some variation around the curve
+                    const angle = Math.random() * Math.PI * 2;
+                    const offset = (Math.random() - 0.5) * atSymbolThickness * 0.8;
+                    x = point.x + Math.cos(angle) * offset;
+                    y = point.y + Math.sin(angle) * offset;
+                    z = Math.sin(angle) * offset;
                 }
                 
                 // Remove "O" pattern - focus on clean mail icon shape
@@ -4848,55 +4843,11 @@
             let isDisintegrating = false;
             let disintegrationProgress = 0;
 
-            // Grid lines for Outlook logo (envelope edges with triangular flap)
+            // Grid lines for @ symbol (simplified - wireframe already shows structure)
             const gridGroup = new THREE.Group();
-            
-            // Envelope body edges for grid
-            const bodyEdgeLines = [
-                // Front face edges
-                [[-logoWidth/2, -logoHeight/2, logoDepth/2], [logoWidth/2, -logoHeight/2, logoDepth/2]],
-                [[logoWidth/2, -logoHeight/2, logoDepth/2], [logoWidth/2, logoHeight/2, logoDepth/2]],
-                [[logoWidth/2, logoHeight/2, logoDepth/2], [-logoWidth/2, logoHeight/2, logoDepth/2]],
-                [[-logoWidth/2, logoHeight/2, logoDepth/2], [-logoWidth/2, -logoHeight/2, logoDepth/2]],
-                // Back face edges
-                [[-logoWidth/2, -logoHeight/2, -logoDepth/2], [logoWidth/2, -logoHeight/2, -logoDepth/2]],
-                [[logoWidth/2, -logoHeight/2, -logoDepth/2], [logoWidth/2, logoHeight/2, -logoDepth/2]],
-                [[logoWidth/2, logoHeight/2, -logoDepth/2], [-logoWidth/2, logoHeight/2, -logoDepth/2]],
-                [[-logoWidth/2, logoHeight/2, -logoDepth/2], [-logoWidth/2, -logoHeight/2, -logoDepth/2]],
-                // Connecting edges
-                [[-logoWidth/2, -logoHeight/2, logoDepth/2], [-logoWidth/2, -logoHeight/2, -logoDepth/2]],
-                [[logoWidth/2, -logoHeight/2, logoDepth/2], [logoWidth/2, -logoHeight/2, -logoDepth/2]],
-                [[logoWidth/2, logoHeight/2, logoDepth/2], [logoWidth/2, logoHeight/2, -logoDepth/2]],
-                [[-logoWidth/2, logoHeight/2, logoDepth/2], [-logoWidth/2, logoHeight/2, -logoDepth/2]]
-            ];
-            
-            // Triangular flap edges for grid (folded down - classic mail icon)
-            const flapTipY = logoHeight / 2 + flapHeight * Math.cos(flapAngle);
-            const flapTipZ = logoDepth / 2 + flapHeight * Math.sin(flapAngle);
-            const flapEdgeLines = [
-                // Left edge of flap (from top-left to tip)
-                [[-logoWidth/2, logoHeight/2, logoDepth/2], [0, flapTipY, flapTipZ]],
-                // Right edge of flap (from tip to top-right)
-                [[0, flapTipY, flapTipZ], [logoWidth/2, logoHeight/2, logoDepth/2]],
-                // Base of triangle (top edge of envelope)
-                [[-logoWidth/2, logoHeight/2, logoDepth/2], [logoWidth/2, logoHeight/2, logoDepth/2]]
-            ];
-            
-            [...bodyEdgeLines, ...flapEdgeLines].forEach(edge => {
-                const geometry = new THREE.BufferGeometry().setFromPoints([
-                    new THREE.Vector3(edge[0][0], edge[0][1], edge[0][2]),
-                    new THREE.Vector3(edge[1][0], edge[1][1], edge[1][2])
-                ]);
-                const line = new THREE.Line(geometry, new THREE.LineBasicMaterial({
-                    color: 0x00FFE5,
-                    transparent: true,
-                    opacity: 0.3
-                }));
-                gridGroup.add(line);
-            });
-            
-            gridGroup.visible = true; // Visible for better definition
-            gridGroup.position.y = 0.5; // Move logo slightly higher
+            // Grid lines are handled by the wireframe geometry, so we keep this minimal
+            gridGroup.visible = false; // Wireframe is enough for definition
+            gridGroup.position.y = 0.5;
             scene.add(gridGroup);
 
             // Enhanced lighting for realism (logo color)
@@ -4987,8 +4938,8 @@
                         const timeOffset = i * 0.01; // Unique offset per particle
                         const oscillation = Math.sin(time * 0.5 + timeOffset) * 0.3;
                         
-                        // Move particles within logo bounds (envelope shape)
-                        const maxDistance = Math.max(logoWidth, logoHeight + flapHeight) * 0.2; // Max 20% from original position
+                        // Move particles within @ symbol bounds
+                        const maxDistance = atSymbolRadius * 0.15; // Max 15% from original position
                         const moveX = vel.x * oscillation * maxDistance;
                         const moveY = vel.y * oscillation * maxDistance;
                         const moveZ = vel.z * oscillation * maxDistance;
@@ -4998,14 +4949,19 @@
                         let newY = originalPos.originalY + moveY;
                         let newZ = originalPos.originalZ + moveZ;
                         
-                        // Ensure particles stay within logo bounds (envelope with flap)
-                        const maxX = logoWidth / 2 * 1.1;
-                        const maxY = (logoHeight / 2 + flapHeight) * 1.1; // Account for flap
-                        const maxZ = logoDepth / 2 * 1.1;
+                        // Ensure particles stay within @ symbol bounds (circular)
+                        const distanceFromCenter = Math.sqrt(newX * newX + newY * newY);
+                        const maxRadius = atSymbolRadius * 1.2; // Allow slight expansion
                         
-                        newX = Math.max(-maxX, Math.min(maxX, newX));
-                        newY = Math.max(-maxY, Math.min(maxY, newY));
-                        newZ = Math.max(-maxZ, Math.min(maxZ, newZ));
+                        if (distanceFromCenter > maxRadius) {
+                            // Normalize to circle boundary
+                            const scale = maxRadius / distanceFromCenter;
+                            newX *= scale;
+                            newY *= scale;
+                        }
+                        
+                        // Constrain Z within thickness
+                        newZ = Math.max(-atSymbolThickness * 1.5, Math.min(atSymbolThickness * 1.5, newZ));
                         
                         // Apply position
                         sprite.position.set(newX, newY, newZ);
@@ -5018,7 +4974,7 @@
                         );
                         
                         // Opacity based on distance (see-through effect)
-                        const maxDist = Math.max(logoWidth, logoHeight + flapHeight) * 0.2;
+                        const maxDist = atSymbolRadius * 0.15;
                         const opacityFactor = Math.min(1, distance / maxDist);
                         sprite.material.opacity = Math.max(0.4, 0.85 - opacityFactor * 0.45); // More visible when closer to original
                     });
