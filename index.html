@@ -5052,6 +5052,9 @@
                 if (latLongGroup.rotation.y === undefined || isNaN(latLongGroup.rotation.y)) {
                     latLongGroup.rotation.y = 0;
                 }
+                if (fleeingGroup && (fleeingGroup.rotation.y === undefined || isNaN(fleeingGroup.rotation.y))) {
+                    fleeingGroup.rotation.y = 0;
+                }
                 
                 // Increment rotation
                 particleGroup.rotation.y += rotationSpeed * safeDeltaTime;
