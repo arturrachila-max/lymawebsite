@@ -5085,6 +5085,9 @@
 
             animate();
             
+            // Store Earth references for notifications
+            setEarthReferences(camera, renderer, container, earthRadius, scene, particleGroup);
+            
             // Earth Notifications System - Points to locations on Earth
             const notificationsContainer = document.getElementById('earthNotifications');
             const notificationMessages = [
