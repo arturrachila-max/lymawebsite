@@ -166,7 +166,7 @@
             scrollbar-width: none;
         }
 
-        /* Advanced Custom Cursor */
+        /* Static Custom Cursor */
         .cursor {
             position: fixed;
             width: 20px;
@@ -179,23 +179,8 @@
             transition: width 0.2s, height 0.2s, border-width 0.2s;
             box-shadow: 
                 0 0 10px var(--accent-primary),
-                0 0 20px var(--accent-primary),
-                0 0 30px var(--accent-primary);
-            animation: cursor-pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes cursor-pulse {
-            0%, 100% {
-                box-shadow: 
-                    0 0 10px var(--accent-primary),
-                    0 0 20px var(--accent-primary);
-            }
-            50% {
-                box-shadow: 
-                    0 0 20px var(--accent-primary),
-                    0 0 40px var(--accent-primary),
-                    0 0 60px var(--neon-pink);
-            }
+                0 0 20px var(--accent-primary);
+            /* No animation - static cursor */
         }
 
         .cursor-dot {
@@ -211,23 +196,7 @@
             box-shadow: 
                 0 0 8px var(--accent-primary),
                 0 0 16px var(--accent-primary);
-            animation: cursor-dot-pulse 1s ease-in-out infinite;
-        }
-
-        @keyframes cursor-dot-pulse {
-            0%, 100% {
-                transform: translate(-50%, -50%) scale(1);
-                box-shadow: 
-                    0 0 8px var(--accent-primary),
-                    0 0 16px var(--accent-primary);
-            }
-            50% {
-                transform: translate(-50%, -50%) scale(1.5);
-                box-shadow: 
-                    0 0 15px var(--accent-primary),
-                    0 0 30px var(--accent-primary),
-                    0 0 45px var(--neon-pink);
-            }
+            /* No animation - static cursor */
         }
 
         .cursor.hover {
@@ -4555,32 +4524,17 @@
         // Custom Cursor
         const cursor = document.querySelector('.cursor');
         const cursorDot = document.querySelector('.cursor-dot');
-        let mouseX = 0, mouseY = 0;
-        let cursorX = 0, cursorY = 0;
-        let cursorDotX = 0, cursorDotY = 0;
 
         if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
             document.body.classList.add('cursor-active');
-            
+
+            // Static cursor - direct position update without smoothing
             document.addEventListener('mousemove', (e) => {
-                mouseX = e.clientX;
-                mouseY = e.clientY;
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+                cursorDot.style.left = e.clientX + 'px';
+                cursorDot.style.top = e.clientY + 'px';
             });
-
-            function animateCursor() {
-                cursorX += (mouseX - cursorX) * 0.1;
-                cursorY += (mouseY - cursorY) * 0.1;
-                cursorDotX += (mouseX - cursorDotX) * 0.3;
-                cursorDotY += (mouseY - cursorDotY) * 0.3;
-
-                cursor.style.left = cursorX + 'px';
-                cursor.style.top = cursorY + 'px';
-                cursorDot.style.left = cursorDotX + 'px';
-                cursorDot.style.top = cursorDotY + 'px';
-
-                requestAnimationFrame(animateCursor);
-            }
-            animateCursor();
 
             document.querySelectorAll('a, button, .btn').forEach(el => {
                 el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
