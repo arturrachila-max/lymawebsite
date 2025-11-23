@@ -4960,7 +4960,7 @@
                 ringSprite.lookAt(camera.position);
                 
                 ringParticles.push(ringSprite);
-                scene.add(ringSprite);
+                ringGroup.add(ringSprite); // Add to ring group instead of scene directly
             }
             
             console.log('✅ Number ring added around Earth');
@@ -5042,11 +5042,15 @@
                 particleGroup.rotation.y += rotationSpeed * safeDeltaTime;
                 wireframe.rotation.y += rotationSpeed * safeDeltaTime;
                 latLongGroup.rotation.y += rotationSpeed * safeDeltaTime;
+                if (ringGroup) {
+                    ringGroup.rotation.y += rotationSpeed * safeDeltaTime; // Rotate ring with Earth
+                }
                 
                 // Keep rotation in reasonable range (prevent overflow)
                 if (particleGroup.rotation.y > Math.PI * 2) particleGroup.rotation.y -= Math.PI * 2;
                 if (wireframe.rotation.y > Math.PI * 2) wireframe.rotation.y -= Math.PI * 2;
                 if (latLongGroup.rotation.y > Math.PI * 2) latLongGroup.rotation.y -= Math.PI * 2;
+                if (ringGroup && ringGroup.rotation.y > Math.PI * 2) ringGroup.rotation.y -= Math.PI * 2;
                 
                 // Add mouse parallax when hovering
                 if (!isDisintegrating) {
