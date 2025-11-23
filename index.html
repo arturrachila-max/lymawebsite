@@ -4858,12 +4858,12 @@
                 // Don't add to scene yet - will add to group
             }
             
-            // Group for easier control
+            // Group for easier control - HIDDEN (Earth without numbers)
             const particleGroup = new THREE.Group();
             numberParticles.forEach(sprite => particleGroup.add(sprite));
             particleGroup.position.y = 0.5; // Move Earth slightly higher
             scene.add(particleGroup);
-            particleGroup.visible = true; // Visible by default - Earth made of numbers
+            particleGroup.visible = false; // Hidden - Earth is just wireframe now
             
             let isDisintegrating = false;
             let disintegrationProgress = 0;
@@ -4915,9 +4915,50 @@
                 latLongGroup.add(latLine);
             }
             
-            latLongGroup.visible = false; // Hidden - Earth made of numbers
+            latLongGroup.visible = false; // Hidden
             latLongGroup.position.y = 0.5; // Move Earth slightly higher
             scene.add(latLongGroup);
+            
+            // Number leak effect - numbers flowing from bottom of Earth
+            const leakParticles = [];
+            const leakVelocities = [];
+            const leakCount = 150; // Number of leaking particles
+            
+            for (let i = 0; i < leakCount; i++) {
+                // Start from bottom of Earth sphere
+                const angle = Math.random() * Math.PI * 2;
+                const radius = earthRadius * 0.9; // Start near surface
+                const startX = radius * Math.cos(angle);
+                const startY = -earthRadius * 0.8; // Bottom of sphere
+                const startZ = radius * Math.sin(angle);
+                
+                const num = numbers[Math.floor(Math.random() * numbers.length)];
+                const texture = numberTextures[num];
+                
+                const leakMaterial = new THREE.SpriteMaterial({
+                    map: texture,
+                    transparent: true,
+                    opacity: 0.8,
+                    color: 0x00FFE5,
+                    blending: THREE.NormalBlending
+                });
+                
+                const leakSprite = new THREE.Sprite(leakMaterial);
+                leakSprite.position.set(startX, startY, startZ);
+                leakSprite.scale.set(0.15, 0.15, 1);
+                
+                leakParticles.push(leakSprite);
+                leakVelocities.push({
+                    x: (Math.random() - 0.5) * 0.02,
+                    y: -0.05 - Math.random() * 0.1, // Downward flow
+                    z: (Math.random() - 0.5) * 0.02,
+                    resetY: startY // Reset position when too far down
+                });
+                
+                scene.add(leakSprite);
+            }
+            
+            console.log('✅ Number leak effect added');
 
             // Optimized lighting - Reduced lights for better performance
             const lightColor = 0x00FFE5; // Accent primary color
