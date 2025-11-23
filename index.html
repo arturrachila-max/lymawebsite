@@ -4670,76 +4670,67 @@
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
             container.appendChild(renderer.domElement);
 
-            // 3D @ Symbol properties
-            const atSymbolRadius = 2.5; // Outer radius of @ symbol
-            const atSymbolThickness = 0.3; // Thickness of the @ symbol
-            const atSymbolSegments = 64; // High detail for smooth curves
-            const atSymbolTubularSegments = 32; // Segments around the tube
+            // 3D Waterfall properties
+            const waterfallWidth = 3; // Width of waterfall at top
+            const waterfallHeight = 5; // Height of waterfall
+            const waterfallDepth = 0.5; // Depth/thickness of waterfall
+            const waterfallSourceY = 2.5; // Top of waterfall
+            const waterfallBottomY = -2.5; // Bottom of waterfall
 
-            // Create 3D @ symbol group
-            const atSymbolGroup = new THREE.Group();
+            // Create 3D waterfall group
+            const waterfallGroup = new THREE.Group();
             
-            // Outer ring (torus) - main circle of @ symbol
-            const outerRingGeometry = new THREE.TorusGeometry(
-                atSymbolRadius, // radius
-                atSymbolThickness, // tube radius
-                atSymbolSegments, // radial segments
-                atSymbolTubularSegments // tubular segments
-            );
-            const outerRingEdges = new THREE.EdgesGeometry(outerRingGeometry, 0.01);
-            const outerRingWireframe = new THREE.LineSegments(outerRingEdges, new THREE.LineBasicMaterial({
+            // Waterfall source (top edge) - wireframe
+            const sourceGeometry = new THREE.BoxGeometry(waterfallWidth, 0.2, waterfallDepth, 8, 1, 1);
+            const sourceEdges = new THREE.EdgesGeometry(sourceGeometry, 0.01);
+            const sourceWireframe = new THREE.LineSegments(sourceEdges, new THREE.LineBasicMaterial({
                 color: 0x00FFE5,
                 transparent: true,
                 opacity: 0.85,
                 linewidth: 1
             }));
-            outerRingWireframe.rotation.x = Math.PI / 2; // Rotate to be vertical
-            outerRingWireframe.visible = true;
-            atSymbolGroup.add(outerRingWireframe);
+            sourceWireframe.position.y = waterfallSourceY;
+            sourceWireframe.visible = true;
+            waterfallGroup.add(sourceWireframe);
 
-            // Inner "a" part of @ symbol - create as a curved tube
-            // This forms the inner loop that creates the @ shape
-            const innerRadius = atSymbolRadius * 0.6; // Inner radius for the "a" part
-            const innerCurve = new THREE.CatmullRomCurve3([
-                new THREE.Vector3(innerRadius * 0.3, -innerRadius * 0.5, 0),
-                new THREE.Vector3(innerRadius * 0.8, -innerRadius * 0.2, 0),
-                new THREE.Vector3(innerRadius * 0.9, innerRadius * 0.3, 0),
-                new THREE.Vector3(innerRadius * 0.6, innerRadius * 0.7, 0),
-                new THREE.Vector3(innerRadius * 0.2, innerRadius * 0.5, 0),
-                new THREE.Vector3(-innerRadius * 0.1, innerRadius * 0.2, 0),
-                new THREE.Vector3(-innerRadius * 0.2, -innerRadius * 0.2, 0),
-                new THREE.Vector3(innerRadius * 0.1, -innerRadius * 0.4, 0),
-                new THREE.Vector3(innerRadius * 0.3, -innerRadius * 0.5, 0) // Close the loop
+            // Waterfall main body - create as a curved surface
+            const waterfallCurve = new THREE.CatmullRomCurve3([
+                new THREE.Vector3(-waterfallWidth / 2, waterfallSourceY, 0),
+                new THREE.Vector3(-waterfallWidth / 3, waterfallSourceY * 0.5, 0),
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(waterfallWidth / 3, waterfallSourceY * 0.5, 0),
+                new THREE.Vector3(waterfallWidth / 2, waterfallSourceY, 0)
             ]);
             
-            const innerTubeGeometry = new THREE.TubeGeometry(
-                innerCurve,
-                atSymbolSegments,
-                atSymbolThickness * 0.8,
-                16,
+            // Create waterfall surface using tube geometry
+            const waterfallTubeGeometry = new THREE.TubeGeometry(
+                waterfallCurve,
+                32,
+                waterfallDepth * 0.5,
+                8,
                 false
             );
-            const innerTubeEdges = new THREE.EdgesGeometry(innerTubeGeometry, 0.01);
-            const innerTubeWireframe = new THREE.LineSegments(innerTubeEdges, new THREE.LineBasicMaterial({
+            const waterfallEdges = new THREE.EdgesGeometry(waterfallTubeGeometry, 0.01);
+            const waterfallWireframe = new THREE.LineSegments(waterfallEdges, new THREE.LineBasicMaterial({
                 color: 0x00FFE5,
                 transparent: true,
-                opacity: 0.85,
+                opacity: 0.6,
                 linewidth: 1
             }));
-            innerTubeWireframe.rotation.x = Math.PI / 2; // Rotate to match outer ring
-            innerTubeWireframe.visible = true;
-            atSymbolGroup.add(innerTubeWireframe);
+            waterfallWireframe.visible = true;
+            waterfallGroup.add(waterfallWireframe);
 
-            atSymbolGroup.position.y = 0.5;
-            scene.add(atSymbolGroup);
+            waterfallGroup.position.y = 0;
+            scene.add(waterfallGroup);
             
             // Store references for animation
-            const wireframe = atSymbolGroup; // Use group as wireframe reference
+            const wireframe = waterfallGroup; // Use group as wireframe reference
 
-            // Number particles system (numbers 1-10) - @ symbol made of numbers
-            const particleCount = 6000; // Increased for better definition
+            // Number particles system (numbers 1-10) - Waterfall made of numbers
+            const particleCount = 8000; // More particles for waterfall effect
             const numberParticles = [];
             const particleVelocities = [];
+            const particleLifetimes = []; // Track particle lifetime for waterfall flow
             const numbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
             
             // Pre-create textures for all numbers (more efficient)
@@ -4759,38 +4750,22 @@
                 numberTextures[num] = texture;
             });
             
-            // Create number sprites covering the @ symbol surface
+            // Create number sprites for waterfall - particles flow downward
             for (let i = 0; i < particleCount; i++) {
                 let x, y, z;
-                const surfaceType = Math.random();
                 
-                if (surfaceType < 0.7) {
-                    // Outer ring (torus) - 70% of particles
-                    const theta = Math.random() * Math.PI * 2; // Angle around the ring
-                    const phi = Math.random() * Math.PI * 2; // Angle around the tube
-                    const radius = atSymbolRadius + Math.cos(phi) * atSymbolThickness;
-                    x = Math.cos(theta) * radius;
-                    y = Math.sin(theta) * radius;
-                    z = Math.sin(phi) * atSymbolThickness;
-                } else {
-                    // Inner "a" part of @ symbol - 30% of particles
-                    // Distribute along the inner curve
-                    const t = Math.random(); // Parameter along the curve
-                    const point = innerCurve.getPoint(t);
-                    // Add some variation around the curve
-                    const angle = Math.random() * Math.PI * 2;
-                    const offset = (Math.random() - 0.5) * atSymbolThickness * 0.8;
-                    x = point.x + Math.cos(angle) * offset;
-                    y = point.y + Math.sin(angle) * offset;
-                    z = Math.sin(angle) * offset;
-                }
+                // Waterfall particles start at top and flow down
+                // Distribute across waterfall width
+                x = (Math.random() * 2 - 1) * waterfallWidth / 2;
+                // Start at various heights (some already falling)
+                y = waterfallSourceY - Math.random() * waterfallHeight * 1.5; // Allow some to start below source
+                // Depth variation
+                z = (Math.random() * 2 - 1) * waterfallDepth / 2;
+                
+                // Add some randomness to create waterfall flow effect
+                x += (Math.random() - 0.5) * 0.3; // Slight horizontal spread
                 
                 // Remove "O" pattern - focus on clean mail icon shape
-                
-                // Calculate normal vector (direction from center to surface point)
-                const center = new THREE.Vector3(0, 0, 0);
-                const surfacePoint = new THREE.Vector3(x, y, z);
-                const direction = surfacePoint.clone().sub(center).normalize();
                 
                 const num = numbers[Math.floor(Math.random() * numbers.length)];
                 const texture = numberTextures[num];
@@ -4798,56 +4773,51 @@
                 const spriteMaterial = new THREE.SpriteMaterial({
                     map: texture,
                     transparent: true,
-                    opacity: 0.95, // Higher opacity for better visibility
+                    opacity: 0.9,
                     color: 0x00FFE5,
                     blending: THREE.AdditiveBlending,
-                    depthTest: false, // Ensure sprites are always visible
+                    depthTest: false,
                     depthWrite: false
                 });
                 
                 const sprite = new THREE.Sprite(spriteMaterial);
                 sprite.position.set(x, y, z);
-                sprite.scale.set(0.2, 0.2, 1); // Larger sprites for better definition
+                sprite.scale.set(0.15, 0.15, 1);
                 
-                // Orient sprite to face outward from logo surface (perpendicular to face)
-                sprite.lookAt(
-                    sprite.position.x + direction.x,
-                    sprite.position.y + direction.y,
-                    sprite.position.z + direction.z
-                );
+                // Orient sprite to face camera
+                sprite.lookAt(camera.position);
                 
                 sprite.userData = {
-                    originalX: x,
-                    originalY: y,
-                    originalZ: z,
-                    number: num,
-                    direction: direction.clone() // Store direction for later updates
+                    startY: waterfallSourceY + Math.random() * 0.5, // Starting Y position
+                    speed: 0.05 + Math.random() * 0.1, // Falling speed (varies per particle)
+                    horizontalDrift: (Math.random() - 0.5) * 0.02, // Slight horizontal movement
+                    number: num
                 };
                 
                 numberParticles.push(sprite);
                 particleVelocities.push({
-                    x: (Math.random() - 0.5) * 0.02,
-                    y: (Math.random() - 0.5) * 0.02,
-                    z: (Math.random() - 0.5) * 0.02
+                    x: (Math.random() - 0.5) * 0.01,
+                    y: -sprite.userData.speed, // Downward velocity
+                    z: (Math.random() - 0.5) * 0.01
                 });
+                particleLifetimes.push(Math.random()); // Random start time
                 scene.add(sprite);
             }
             
             // Group for easier control
             const particleGroup = new THREE.Group();
             numberParticles.forEach(sprite => particleGroup.add(sprite));
-            particleGroup.position.y = 0.5; // Move logo slightly higher
+            particleGroup.position.y = 0;
             scene.add(particleGroup);
-            particleGroup.visible = true; // Visible by default - Logo made of numbers - FULLY VISIBLE
+            particleGroup.visible = true;
             
             let isDisintegrating = false;
             let disintegrationProgress = 0;
 
-            // Grid lines for @ symbol (simplified - wireframe already shows structure)
+            // Grid lines for waterfall (simplified - wireframe already shows structure)
             const gridGroup = new THREE.Group();
-            // Grid lines are handled by the wireframe geometry, so we keep this minimal
             gridGroup.visible = false; // Wireframe is enough for definition
-            gridGroup.position.y = 0.5;
+            gridGroup.position.y = 0;
             scene.add(gridGroup);
 
             // Enhanced lighting for realism (logo color)
@@ -4864,143 +4834,71 @@
             directionalLight.position.set(5, 5, 5);
             scene.add(directionalLight);
 
-            // No rotation - static mail icon
-            // Inverted logic: disintegration by default, reassembly on hover
-            isDisintegrating = true; // Start with disintegration effect
-            disintegrationProgress = 0.3; // Start at 30% disintegration (more visible)
+            // Waterfall flow - particles continuously flow downward
+            isDisintegrating = false; // Waterfall is always flowing
             
             container.addEventListener('mouseenter', () => {
-                // On hover: reassemble logo
-                isDisintegrating = false;
-                wireframe.visible = true;
-                gridGroup.visible = true;
-                
-                // Animate particles back to original positions
+                // On hover: increase opacity
                 numberParticles.forEach((sprite) => {
-                    sprite.material.opacity = 1.0; // Full opacity when assembled
+                    sprite.material.opacity = 1.0;
                 });
             });
 
             container.addEventListener('mouseleave', () => {
-                // On leave: disintegrate again
-                isDisintegrating = true;
-                disintegrationProgress = 0.3; // Start disintegration
-                wireframe.visible = true; // Keep wireframe visible
-                gridGroup.visible = false;
+                // On leave: return to normal opacity
+                numberParticles.forEach((sprite) => {
+                    sprite.material.opacity = 0.9;
+                });
             });
 
-            // Animation - No rotation, static mail icon
+            // Animation - Waterfall flow
             const clock = new THREE.Clock();
             
             function animate() {
                 requestAnimationFrame(animate);
 
                 const elapsedTime = clock.getElapsedTime();
+                const deltaTime = clock.getDelta();
 
-                // No rotation - keep everything static
-                // Only subtle floating effect for visual interest
-                if (isDisintegrating) {
-                    // Subtle floating effect (vertical movement only)
-                    const floatOffset = Math.sin(elapsedTime * 0.3) * 0.05; // Very subtle
-                    particleGroup.position.y = 0.5 + floatOffset;
-                    wireframe.position.y = 0.5 + floatOffset;
-                    gridGroup.position.y = 0.5 + floatOffset;
-                } else {
-                    // When assembled (hover), keep static
-                    particleGroup.position.y = 0.5;
-                    wireframe.position.y = 0.5;
-                    gridGroup.position.y = 0.5;
-                }
-                
-                // Orient sprites to face camera for better visibility (no rotation needed)
-                numberParticles.forEach(sprite => {
-                    const direction = sprite.userData.direction;
-                    if (direction) {
-                        // Get current world position
-                        const worldPos = new THREE.Vector3();
-                        sprite.getWorldPosition(worldPos);
-                        // Orient sprite to face camera (better visibility for static icon)
-                        sprite.lookAt(camera.position);
+                // Waterfall flow - particles continuously fall downward
+                numberParticles.forEach((sprite, i) => {
+                    const userData = sprite.userData;
+                    const vel = particleVelocities[i];
+                    
+                    // Update position - particles fall downward
+                    sprite.position.y -= userData.speed * deltaTime * 60; // Fall speed
+                    sprite.position.x += userData.horizontalDrift * deltaTime * 60; // Slight horizontal drift
+                    sprite.position.z += vel.z * deltaTime * 60; // Depth variation
+                    
+                    // Reset particle to top when it reaches bottom (continuous waterfall)
+                    if (sprite.position.y < waterfallBottomY - 1) {
+                        sprite.position.y = waterfallSourceY + Math.random() * 0.5; // Reset to top
+                        sprite.position.x = (Math.random() * 2 - 1) * waterfallWidth / 2; // Random X at top
+                        sprite.position.z = (Math.random() * 2 - 1) * waterfallDepth / 2; // Random Z
+                        // Reset speed and drift for variety
+                        userData.speed = 0.05 + Math.random() * 0.1;
+                        userData.horizontalDrift = (Math.random() - 0.5) * 0.02;
+                        vel.y = -userData.speed;
                     }
+                    
+                    // Constrain particles within waterfall width
+                    if (Math.abs(sprite.position.x) > waterfallWidth / 2) {
+                        sprite.position.x = Math.sign(sprite.position.x) * waterfallWidth / 2;
+                    }
+                    
+                    // Orient sprite to face camera
+                    sprite.lookAt(camera.position);
+                    
+                    // Opacity based on position in waterfall (slightly more transparent at edges)
+                    const distanceFromCenter = Math.abs(sprite.position.x);
+                    const opacityFactor = 1 - (distanceFromCenter / (waterfallWidth / 2)) * 0.2;
+                    sprite.material.opacity = Math.max(0.7, 0.9 * opacityFactor);
                 });
 
-                // Number particle movement effect (inverted: default state)
-                if (isDisintegrating) {
-                    // Continuous movement - particles "walk" within sphere bounds
-                    const time = elapsedTime;
-                    const movementSpeed = 0.02; // Slower, smoother movement
-                    
-                    numberParticles.forEach((sprite, i) => {
-                        const vel = particleVelocities[i];
-                        const originalPos = sprite.userData;
-                        
-                        // Calculate movement with time-based oscillation
-                        const timeOffset = i * 0.01; // Unique offset per particle
-                        const oscillation = Math.sin(time * 0.5 + timeOffset) * 0.3;
-                        
-                        // Move particles within @ symbol bounds
-                        const maxDistance = atSymbolRadius * 0.15; // Max 15% from original position
-                        const moveX = vel.x * oscillation * maxDistance;
-                        const moveY = vel.y * oscillation * maxDistance;
-                        const moveZ = vel.z * oscillation * maxDistance;
-                        
-                        // Calculate new position
-                        let newX = originalPos.originalX + moveX;
-                        let newY = originalPos.originalY + moveY;
-                        let newZ = originalPos.originalZ + moveZ;
-                        
-                        // Ensure particles stay within @ symbol bounds (circular)
-                        const distanceFromCenter = Math.sqrt(newX * newX + newY * newY);
-                        const maxRadius = atSymbolRadius * 1.2; // Allow slight expansion
-                        
-                        if (distanceFromCenter > maxRadius) {
-                            // Normalize to circle boundary
-                            const scale = maxRadius / distanceFromCenter;
-                            newX *= scale;
-                            newY *= scale;
-                        }
-                        
-                        // Constrain Z within thickness
-                        newZ = Math.max(-atSymbolThickness * 1.5, Math.min(atSymbolThickness * 1.5, newZ));
-                        
-                        // Apply position
-                        sprite.position.set(newX, newY, newZ);
-                        
-                        // Calculate distance from original position for opacity
-                        const distance = Math.sqrt(
-                            Math.pow(newX - originalPos.originalX, 2) +
-                            Math.pow(newY - originalPos.originalY, 2) +
-                            Math.pow(newZ - originalPos.originalZ, 2)
-                        );
-                        
-                        // Opacity based on distance (see-through effect)
-                        const maxDist = atSymbolRadius * 0.15;
-                        const opacityFactor = Math.min(1, distance / maxDist);
-                        sprite.material.opacity = Math.max(0.4, 0.85 - opacityFactor * 0.45); // More visible when closer to original
-                    });
-                } else {
-                    // Reassemble: animate particles back to original positions
-                    disintegrationProgress = Math.max(0, disintegrationProgress - 0.05); // Decrease disintegration
-                    
-                    numberParticles.forEach((sprite, i) => {
-                        const vel = particleVelocities[i];
-                        const currentSpeed = disintegrationProgress * 0.25;
-                        
-                        // Smoothly return to original position
-                        sprite.position.x += (sprite.userData.originalX - sprite.position.x) * 0.1;
-                        sprite.position.y += (sprite.userData.originalY - sprite.position.y) * 0.1;
-                        sprite.position.z += (sprite.userData.originalZ - sprite.position.z) * 0.1;
-                        
-                        // Increase opacity as particles return
-                        const distance = Math.sqrt(
-                            Math.pow(sprite.position.x - sprite.userData.originalX, 2) +
-                            Math.pow(sprite.position.y - sprite.userData.originalY, 2) +
-                            Math.pow(sprite.position.z - sprite.userData.originalZ, 2)
-                        );
-                        sprite.material.opacity = Math.min(0.95, 0.3 + (1 - distance / 2) * 0.65);
-                        sprite.visible = true;
-                    });
-                }
+                // Keep wireframe static
+                wireframe.position.y = 0;
+                particleGroup.position.y = 0;
+                gridGroup.position.y = 0;
 
                 renderer.render(scene, camera);
             }
@@ -5017,30 +4915,30 @@
             animate();
         }
 
-        // Initialize Outlook Logo when Three.js is loaded - Lazy load for better performance
-        function initOutlookLogoLazy() {
+        // Initialize Waterfall when Three.js is loaded - Lazy load for better performance
+        function initWaterfallLazy() {
             if (window.THREE) {
                 // Wait for page to be fully interactive before initializing heavy 3D
                 if (document.readyState === 'complete') {
-                    setTimeout(initOutlookLogo, 500);
+                    setTimeout(initWaterfall, 500);
                 } else {
                     window.addEventListener('load', () => {
-                        setTimeout(initOutlookLogo, 500);
+                        setTimeout(initWaterfall, 500);
                     });
                 }
             } else {
                 // Retry if Three.js hasn't loaded yet
-                setTimeout(initOutlookLogoLazy, 100);
+                setTimeout(initWaterfallLazy, 100);
             }
         }
         
         // Start initialization after a short delay to prioritize page rendering
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
-                setTimeout(initOutlookLogoLazy, 300);
+                setTimeout(initWaterfallLazy, 300);
             });
         } else {
-            setTimeout(initOutlookLogoLazy, 300);
+            setTimeout(initWaterfallLazy, 300);
         }
     </script>
 </body>
