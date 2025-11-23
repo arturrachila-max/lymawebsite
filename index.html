@@ -742,6 +742,30 @@
             color: var(--accent-primary);
         }
 
+        .earth-notification-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--accent-primary), transparent);
+            opacity: 0.6;
+            transform-origin: top center;
+            pointer-events: none;
+            z-index: 29;
+        }
+
+        .earth-notification-point {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-primary);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 28;
+        }
+
         .eyebrow {
             display: inline-block;
             padding: var(--spacing-xs) var(--spacing-lg);
@@ -5061,7 +5085,7 @@
 
             animate();
             
-            // Earth Notifications System
+            // Earth Notifications System - Points to locations on Earth
             const notificationsContainer = document.getElementById('earthNotifications');
             const notificationMessages = [
                 { icon: '✓', text: 'Email Saved' },
@@ -5078,16 +5102,97 @@
             
             let activeNotifications = [];
             let notificationIndex = 0;
+            let earthCamera = null;
+            let earthRenderer = null;
+            let earthContainer = null;
+            let earthRadius = 2.5;
+            
+            // Store Earth references for notification positioning
+            function setEarthReferences(camera, renderer, container, radius) {
+                earthCamera = camera;
+                earthRenderer = renderer;
+                earthContainer = container;
+                earthRadius = radius;
+            }
+            
+            // Convert 3D point on Earth to 2D screen coordinates
+            function worldToScreen(worldPoint) {
+                if (!earthCamera || !earthRenderer) return null;
+                
+                const vector = worldPoint.clone();
+                vector.project(earthCamera);
+                
+                const x = (vector.x * 0.5 + 0.5) * earthContainer.clientWidth;
+                const y = (vector.y * -0.5 + 0.5) * earthContainer.clientHeight;
+                
+                return { x, y };
+            }
+            
+            // Generate random point on Earth sphere
+            function getRandomEarthPoint() {
+                const u = Math.random();
+                const v = Math.random();
+                const theta = 2 * Math.PI * u; // Azimuth angle (0 to 2π)
+                const phi = Math.acos(2 * v - 1); // Polar angle (0 to π)
+                
+                const x = earthRadius * Math.sin(phi) * Math.cos(theta);
+                const y = earthRadius * Math.sin(phi) * Math.sin(theta);
+                const z = earthRadius * Math.cos(phi);
+                
+                return new THREE.Vector3(x, y, z);
+            }
+            
+            function updateNotificationPosition(notification, earthPoint, line, point) {
+                if (!earthCamera || !earthRenderer || !earthContainer) return;
+                
+                // Get screen position of Earth point
+                const screenPos = worldToScreen(earthPoint);
+                if (!screenPos) return;
+                
+                // Position notification above the Earth point
+                const offsetAbove = 80; // Distance above Earth point in pixels
+                const notificationX = screenPos.x;
+                const notificationY = screenPos.y - offsetAbove;
+                
+                notification.style.left = `${notificationX}px`;
+                notification.style.top = `${notificationY}px`;
+                notification.style.transform = 'translateX(-50%)';
+                
+                // Position point indicator on Earth
+                if (point) {
+                    point.style.left = `${screenPos.x}px`;
+                    point.style.top = `${screenPos.y}px`;
+                }
+                
+                // Draw line from notification to Earth point
+                if (line) {
+                    const dx = screenPos.x - notificationX;
+                    const dy = screenPos.y - notificationY;
+                    const length = Math.sqrt(dx * dx + dy * dy);
+                    const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+                    
+                    line.style.left = `${notificationX}px`;
+                    line.style.top = `${notificationY}px`;
+                    line.style.width = `${length}px`;
+                    line.style.height = '2px';
+                    line.style.transform = `rotate(${angle}deg)`;
+                    line.style.transformOrigin = '0 50%';
+                }
+            }
             
             function createNotification() {
-                if (!notificationsContainer) return;
+                if (!notificationsContainer || !earthCamera) return;
                 
                 // Remove old notifications (keep max 3 visible)
                 if (activeNotifications.length >= 3) {
                     const oldNotif = activeNotifications.shift();
-                    if (oldNotif) {
-                        oldNotif.classList.add('hide');
-                        setTimeout(() => oldNotif.remove(), 300);
+                    if (oldNotif && oldNotif.notification) {
+                        oldNotif.notification.classList.add('hide');
+                        if (oldNotif.line) oldNotif.line.remove();
+                        if (oldNotif.point) oldNotif.point.remove();
+                        setTimeout(() => {
+                            if (oldNotif.notification) oldNotif.notification.remove();
+                        }, 300);
                     }
                 }
                 
@@ -5095,16 +5200,55 @@
                 const message = notificationMessages[notificationIndex % notificationMessages.length];
                 notificationIndex++;
                 
+                // Get random point on Earth
+                const earthPoint = getRandomEarthPoint();
+                
+                // Create notification element
                 const notification = document.createElement('div');
                 notification.className = 'earth-notification';
                 notification.innerHTML = `<span class="earth-notification-icon">${message.icon}</span>${message.text}`;
                 
-                // Position notification based on how many are already visible
-                const offsetY = activeNotifications.length * 45; // Stack notifications vertically
-                notification.style.top = `${15 + offsetY}%`;
+                // Create line pointing to Earth
+                const line = document.createElement('div');
+                line.className = 'earth-notification-line';
+                
+                // Create point indicator on Earth
+                const point = document.createElement('div');
+                point.className = 'earth-notification-point';
                 
                 notificationsContainer.appendChild(notification);
-                activeNotifications.push(notification);
+                notificationsContainer.appendChild(line);
+                notificationsContainer.appendChild(point);
+                
+                // Store notification data
+                const notificationData = {
+                    notification,
+                    line,
+                    point,
+                    earthPoint
+                };
+                activeNotifications.push(notificationData);
+                
+                // Initial positioning
+                updateNotificationPosition(notification, earthPoint, line, point);
+                
+                // Update position on animation frame (to account for Earth rotation)
+                function updatePosition() {
+                    if (activeNotifications.includes(notificationData)) {
+                        // Apply Earth rotation to the point
+                        const rotatedPoint = earthPoint.clone();
+                        // Get current Earth rotation from the scene
+                        if (scene && scene.children.length > 0) {
+                            const earthGroup = scene.children.find(child => child.type === 'Group' || child.children.length > 0);
+                            if (earthGroup) {
+                                rotatedPoint.applyQuaternion(earthGroup.quaternion);
+                            }
+                        }
+                        updateNotificationPosition(notification, rotatedPoint, line, point);
+                        requestAnimationFrame(updatePosition);
+                    }
+                }
+                updatePosition();
                 
                 // Trigger animation
                 setTimeout(() => {
@@ -5116,13 +5260,11 @@
                     notification.classList.remove('show');
                     notification.classList.add('hide');
                     setTimeout(() => {
-                        const index = activeNotifications.indexOf(notification);
+                        const index = activeNotifications.indexOf(notificationData);
                         if (index > -1) activeNotifications.splice(index, 1);
                         notification.remove();
-                        // Reposition remaining notifications
-                        activeNotifications.forEach((notif, idx) => {
-                            notif.style.top = `${15 + idx * 45}%`;
-                        });
+                        if (line) line.remove();
+                        if (point) point.remove();
                     }, 300);
                 }, 3000);
             }
@@ -5142,10 +5284,13 @@
             
             // Start notifications when Earth is initialized
             if (window.THREE) {
-                setTimeout(startNotifications, 1000);
+                setTimeout(() => {
+                    // Wait for Earth to be initialized
+                    setTimeout(startNotifications, 1500);
+                }, 1000);
             } else {
                 window.addEventListener('load', () => {
-                    setTimeout(startNotifications, 1500);
+                    setTimeout(startNotifications, 2000);
                 });
             }
         }
