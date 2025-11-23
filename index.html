@@ -4925,6 +4925,11 @@
             const ringRadius = earthRadius * 1.8; // Ring radius
             const ringThickness = earthRadius * 0.3; // Ring thickness
             
+            // Create ring group BEFORE the loop
+            const ringGroup = new THREE.Group();
+            ringGroup.position.y = 0.5; // Match Earth position
+            scene.add(ringGroup);
+            
             for (let i = 0; i < ringCount; i++) {
                 // Distribute particles in a ring around Earth
                 const angle = (i / ringCount) * Math.PI * 2;
@@ -4958,12 +4963,6 @@
             }
             
             console.log('✅ Number ring added around Earth');
-            
-            // Ring group for rotation - created after particles
-            const ringGroup = new THREE.Group();
-            ringParticles.forEach(sprite => ringGroup.add(sprite));
-            ringGroup.position.y = 0.5; // Match Earth position
-            scene.add(ringGroup);
 
             // Optimized lighting - Reduced lights for better performance
             const lightColor = 0x00FFE5; // Accent primary color
