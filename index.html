@@ -5106,13 +5106,17 @@
             let earthRenderer = null;
             let earthContainer = null;
             let earthRadius = 2.5;
+            let earthScene = null;
+            let earthParticleGroup = null;
             
             // Store Earth references for notification positioning
-            function setEarthReferences(camera, renderer, container, radius) {
+            function setEarthReferences(camera, renderer, container, radius, scene, particleGroup) {
                 earthCamera = camera;
                 earthRenderer = renderer;
                 earthContainer = container;
                 earthRadius = radius;
+                earthScene = scene;
+                earthParticleGroup = particleGroup;
             }
             
             // Convert 3D point on Earth to 2D screen coordinates
@@ -5237,12 +5241,9 @@
                     if (activeNotifications.includes(notificationData)) {
                         // Apply Earth rotation to the point
                         const rotatedPoint = earthPoint.clone();
-                        // Get current Earth rotation from the scene
-                        if (scene && scene.children.length > 0) {
-                            const earthGroup = scene.children.find(child => child.type === 'Group' || child.children.length > 0);
-                            if (earthGroup) {
-                                rotatedPoint.applyQuaternion(earthGroup.quaternion);
-                            }
+                        // Get current Earth rotation from the particle group
+                        if (earthParticleGroup) {
+                            rotatedPoint.applyQuaternion(earthParticleGroup.quaternion);
                         }
                         updateNotificationPosition(notification, rotatedPoint, line, point);
                         requestAnimationFrame(updatePosition);
