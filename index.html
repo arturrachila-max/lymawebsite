@@ -5162,6 +5162,38 @@
                     }
                 }
 
+                // Update connection particles - animated stream
+                connectionParticles.forEach((conn, i) => {
+                    const progress = i / connectionCount;
+                    const time = elapsedTime * 0.5;
+                    const angle = progress * Math.PI * 4 + time;
+                    const radius = earthRadius * 0.3 * (1 - progress * 0.5);
+                    const x = radius * Math.cos(angle);
+                    const z = radius * Math.sin(angle);
+                    
+                    const startY = -earthRadius * 0.8;
+                    const endY = -earthRadius * 1.5;
+                    const currentY = startY + (endY - startY) * progress;
+                    
+                    // Update line positions
+                    const points = [
+                        new THREE.Vector3(x, currentY, z),
+                        new THREE.Vector3(x, currentY - 0.2, z)
+                    ];
+                    conn.line.geometry.setFromPoints(points);
+                    
+                    // Pulsing opacity
+                    conn.line.material.opacity = 0.3 + Math.sin(time * 2 + i) * 0.2;
+                });
+                
+                // Animate energy stream
+                energyStream.rotation.z += 0.01;
+                energyStream.material.opacity = 0.15 + Math.sin(elapsedTime * 2) * 0.1;
+                
+                // Animate connection glow
+                connectionGlow.rotation.z += 0.02;
+                connectionGlow.material.opacity = 0.25 + Math.sin(elapsedTime * 3) * 0.15;
+                
                 // Update leak particles - numbers flowing downward
                 leakParticles.forEach((sprite, i) => {
                     const vel = leakVelocities[i];
