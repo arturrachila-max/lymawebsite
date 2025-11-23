@@ -4865,6 +4865,12 @@
             scene.add(particleGroup);
             particleGroup.visible = false; // Hidden - Earth is just wireframe now
             
+            // Ring group for rotation
+            const ringGroup = new THREE.Group();
+            ringParticles.forEach(sprite => ringGroup.add(sprite));
+            ringGroup.position.y = 0.5; // Match Earth position
+            scene.add(ringGroup);
+            
             let isDisintegrating = false;
             let disintegrationProgress = 0;
 
