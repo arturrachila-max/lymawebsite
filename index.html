@@ -5111,7 +5111,7 @@
                             const oscillation = Math.sin(time * 0.5 + timeOffset) * 0.2; // Reduced from 0.3
                             
                             // Move particles within sphere bounds
-                            const maxDistance = storedEarthRadius * 0.3; // Reduced from 0.4
+                            const maxDistance = earthRadius * 0.3; // Reduced from 0.4
                             const moveX = vel.x * oscillation * maxDistance;
                             const moveY = vel.y * oscillation * maxDistance;
                             const moveZ = vel.z * oscillation * maxDistance;
@@ -5170,31 +5170,6 @@
                     }
                 }
 
-                // Update connection particles - animated stream
-                if (connectionParticles && connectionParticles.length > 0) {
-                    connectionParticles.forEach((conn, i) => {
-                        const time = elapsedTime * 0.5;
-                        const angle = conn.progress * Math.PI * 4 + time;
-                        const radius = earthRadius * 0.3 * (1 - conn.progress * 0.5);
-                        const x = radius * Math.cos(angle);
-                        const z = radius * Math.sin(angle);
-                        
-                        const startY = -earthRadius * 0.8;
-                        const endY = -earthRadius * 1.5;
-                        const currentY = startY + (endY - startY) * conn.progress;
-                        
-                        // Update line positions
-                        const points = [
-                            new THREE.Vector3(x, currentY, z),
-                            new THREE.Vector3(x, currentY - 0.2, z)
-                        ];
-                        conn.line.geometry.setFromPoints(points);
-                        
-                        // Pulsing opacity
-                        conn.line.material.opacity = 0.3 + Math.sin(time * 2 + i) * 0.2;
-                    });
-                }
-                
                 // Update ring particles - keep facing camera
                 if (ringParticles && ringParticles.length > 0) {
                     ringParticles.forEach((sprite) => {
