@@ -4787,8 +4787,8 @@
             const numberTextures = {};
             numbers.forEach(num => {
                 const canvas = document.createElement('canvas');
-                canvas.width = 128;
-                canvas.height = 128;
+                canvas.width = 64; // Reduced for performance
+                canvas.height = 64; // Reduced for performance
                 const context = canvas.getContext('2d');
                 context.fillStyle = '#00FFE5';
                 context.font = 'bold 50px monospace'; // Optimized size
@@ -4832,7 +4832,7 @@
                 
                 const sprite = new THREE.Sprite(spriteMaterial);
                 sprite.position.set(x, y, z);
-                sprite.scale.set(0.25, 0.25, 1); // Increased for visibility
+                sprite.scale.set(0.2, 0.2, 1); // Optimized size
                 
                 // Orient sprite to face outward from sphere center
                 sprite.lookAt(
@@ -5025,7 +5025,7 @@
                 
                 // Orient sprites to face outward from sphere center - Optimized
                 // Only update every few frames for better performance
-                if (Math.floor(elapsedTime * 10) % 2 === 0) {
+                if (Math.floor(elapsedTime * 5) % 3 === 0) { // Reduced update frequency
                     numberParticles.forEach(sprite => {
                         const direction = sprite.userData.direction;
                         if (direction) {
