@@ -5205,26 +5205,8 @@
             
             animate();
             
-            // Store Earth references for notifications
-            setEarthReferences(camera, renderer, container, earthRadius, scene, particleGroup);
-            
             // Earth Notifications System - Points to locations on Earth
-            const notificationsContainer = document.getElementById('earthNotifications');
-            const notificationMessages = [
-                { icon: '✓', text: 'Email Saved' },
-                { icon: '✓', text: 'Task Created' },
-                { icon: '✓', text: 'Opportunity Updated' },
-                { icon: '✓', text: 'Contact Synced' },
-                { icon: '✓', text: 'Case Logged' },
-                { icon: '✓', text: 'Attachment Processed' },
-                { icon: '✓', text: 'Compliance Verified' },
-                { icon: '✓', text: 'Email Captured' },
-                { icon: '✓', text: 'Record Created' },
-                { icon: '✓', text: 'Data Synced' }
-            ];
-            
-            let activeNotifications = [];
-            let notificationIndex = 0;
+            // Declare variables FIRST before using them
             let earthCamera = null;
             let earthRenderer = null;
             let earthContainer = null;
@@ -5241,6 +5223,26 @@
                 earthScene = scene;
                 earthParticleGroup = particleGroup;
             }
+            
+            // Store Earth references for notifications
+            setEarthReferences(camera, renderer, container, earthRadius, scene, particleGroup);
+            
+            const notificationsContainer = document.getElementById('earthNotifications');
+            const notificationMessages = [
+                { icon: '✓', text: 'Email Saved' },
+                { icon: '✓', text: 'Task Created' },
+                { icon: '✓', text: 'Opportunity Updated' },
+                { icon: '✓', text: 'Contact Synced' },
+                { icon: '✓', text: 'Case Logged' },
+                { icon: '✓', text: 'Attachment Processed' },
+                { icon: '✓', text: 'Compliance Verified' },
+                { icon: '✓', text: 'Email Captured' },
+                { icon: '✓', text: 'Record Created' },
+                { icon: '✓', text: 'Data Synced' }
+            ];
+            
+            let activeNotifications = [];
+            let notificationIndex = 0;
             
             // Convert 3D point on Earth to 2D screen coordinates
             function worldToScreen(worldPoint) {
