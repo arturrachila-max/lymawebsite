@@ -5122,6 +5122,13 @@
                 renderer.setSize(newWidth, newHeight);
             });
 
+            // Test render to verify Earth is visible
+            renderer.render(scene, camera);
+            console.log('Initial Earth render complete');
+            console.log('Scene children:', scene.children.length);
+            console.log('Wireframe visible:', wireframe.visible);
+            console.log('Particle count:', numberParticles.length);
+            
             animate();
             
             // Store Earth references for notifications
