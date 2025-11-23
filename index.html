@@ -5197,7 +5197,7 @@
             let earthCamera = null;
             let earthRenderer = null;
             let earthContainer = null;
-            let earthRadius = 2.5;
+            let storedEarthRadius = 2.5; // Renamed to avoid conflict
             let earthScene = null;
             let earthParticleGroup = null;
             
@@ -5206,7 +5206,7 @@
                 earthCamera = camera;
                 earthRenderer = renderer;
                 earthContainer = container;
-                earthRadius = radius;
+                storedEarthRadius = radius; // Use renamed variable
                 earthScene = scene;
                 earthParticleGroup = particleGroup;
             }
