@@ -6,8 +6,9 @@
     <title>LYMA - Quantum-Protected Email Integrity for Enterprise</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;600;700&family=Exo+2:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Rajdhani:wght@400;600;700&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="https://fonts.gstatic.com/s/orbitron/v25/yMJMMIlzdpvBhQQL_SC3X9yhF25-T1nyGy6xpmE.woff2" as="font" type="font/woff2" crossorigin>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
     <style>
         :root {
             /* Colors */
@@ -4778,23 +4779,23 @@
             console.log('✅ Wireframe added');
 
             // Number particles system (numbers 1-10) - Earth made of numbers
-            const particleCount = 1000; // Optimized for performance
+            const particleCount = 500; // Reduced by 50% for better performance
             const numberParticles = [];
             const particleVelocities = [];
             const numbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
             
-            // Pre-create textures for all numbers (more efficient)
+            // Pre-create textures for all numbers (more efficient) - Optimized size
             const numberTextures = {};
             numbers.forEach(num => {
                 const canvas = document.createElement('canvas');
-                canvas.width = 64; // Reduced for performance
-                canvas.height = 64; // Reduced for performance
+                canvas.width = 32; // Reduced from 64 for 75% less memory
+                canvas.height = 32; // Reduced from 64 for 75% less memory
                 const context = canvas.getContext('2d');
                 context.fillStyle = '#00FFE5';
-                context.font = 'bold 50px monospace'; // Optimized size
+                context.font = 'bold 24px monospace'; // Reduced from 50px
                 context.textAlign = 'center';
                 context.textBaseline = 'middle';
-                context.fillText(num, 32, 32); // Adjusted for smaller canvas
+                context.fillText(num, 16, 16); // Adjusted for smaller canvas
                 const texture = new THREE.CanvasTexture(canvas);
                 texture.needsUpdate = true;
                 numberTextures[num] = texture;
@@ -4922,7 +4923,7 @@
             // Numbers fleeing from Earth - information leaking out
             const fleeingParticles = [];
             const fleeingVelocities = [];
-            const fleeingCount = 200; // Number of fleeing particles
+            const fleeingCount = 100; // Reduced by 50% for better performance
             
             // Create fleeing group
             const fleeingGroup = new THREE.Group();
@@ -5496,37 +5497,73 @@
         }
 
         // Initialize Earth when Three.js is loaded - Lazy load for better performance
+        // Lazy load Earth with IntersectionObserver for better performance
         function initEarthLazy() {
-            if (window.THREE) {
-                // Wait for page to be fully interactive before initializing heavy 3D
-                if (document.readyState === 'complete') {
-                    setTimeout(() => {
-                        console.log('Initializing Earth...');
-                        initEarth();
-                    }, 500);
-                } else {
-                    window.addEventListener('load', () => {
+            const earthContainer = document.getElementById('earth-container');
+            if (!earthContainer) {
+                console.warn('Earth container not found');
+                return;
+            }
+
+            // Check if IntersectionObserver is supported
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting && window.THREE) {
+                            console.log('✅ Earth is visible, initializing...');
+                            initEarth();
+                            observer.disconnect(); // Only initialize once
+                        }
+                    });
+                }, {
+                    rootMargin: '100px' // Start loading 100px before it's visible
+                });
+
+                observer.observe(earthContainer);
+                console.log('✅ IntersectionObserver set up for Earth');
+            } else {
+                // Fallback for browsers without IntersectionObserver
+                if (window.THREE) {
+                    if (document.readyState === 'complete') {
                         setTimeout(() => {
-                            console.log('Initializing Earth after load...');
+                            console.log('Initializing Earth (fallback)...');
                             initEarth();
                         }, 500);
-                    });
+                    } else {
+                        window.addEventListener('load', () => {
+                            setTimeout(() => {
+                                console.log('Initializing Earth after load (fallback)...');
+                                initEarth();
+                            }, 500);
+                        });
+                    }
+                } else {
+                    // Retry if Three.js hasn't loaded yet
+                    console.log('Waiting for Three.js to load...');
+                    setTimeout(initEarthLazy, 100);
                 }
-            } else {
-                // Retry if Three.js hasn't loaded yet
-                console.log('Waiting for Three.js to load...');
-                setTimeout(initEarthLazy, 100);
             }
         }
         
-        // Start initialization after a short delay to prioritize page rendering
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                setTimeout(initEarthLazy, 300);
-            });
-        } else {
-            setTimeout(initEarthLazy, 300);
+        // Wait for Three.js to load before setting up observer
+        function waitForThreeJS() {
+            if (window.THREE) {
+                // Start initialization after DOM is ready
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', () => {
+                        setTimeout(initEarthLazy, 100);
+                    });
+                } else {
+                    setTimeout(initEarthLazy, 100);
+                }
+            } else {
+                // Retry if Three.js hasn't loaded yet (with defer, it loads after DOM)
+                setTimeout(waitForThreeJS, 50);
+            }
         }
+        
+        // Start waiting for Three.js
+        waitForThreeJS();
     </script>
 </body>
 </html>
