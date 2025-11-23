@@ -4670,14 +4670,15 @@
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
             container.appendChild(renderer.domElement);
 
-            // Outlook Logo properties - envelope shape with triangular flap
+            // Mail/Envelope Logo properties - classic envelope shape with folded flap
             const logoWidth = 4;
             const logoHeight = 3;
-            const logoDepth = 0.3;
-            const flapHeight = 1.2; // Height of triangular flap
+            const logoDepth = 0.2;
+            const flapHeight = 1.5; // Height of triangular flap
+            const flapAngle = Math.PI / 4; // 45 degrees - flap folded down
             const logoSegments = 32; // Optimized for performance
 
-            // Create custom envelope geometry with triangular flap
+            // Create custom envelope geometry with folded triangular flap
             const envelopeGroup = new THREE.Group();
             
             // Main envelope body (rectangular)
@@ -4689,11 +4690,11 @@
                 opacity: 0.85,
                 linewidth: 1
             }));
-            bodyWireframe.position.y = -logoHeight / 2 + logoHeight / 2; // Center the body
+            bodyWireframe.position.y = 0; // Center the body
             bodyWireframe.visible = false;
             envelopeGroup.add(bodyWireframe);
 
-            // Triangular flap at the top
+            // Triangular flap folded down (classic mail icon style)
             const flapShape = new THREE.Shape();
             flapShape.moveTo(-logoWidth / 2, 0);
             flapShape.lineTo(0, flapHeight);
@@ -4708,9 +4709,12 @@
                 opacity: 0.85,
                 linewidth: 1
             }));
-            flapWireframe.position.y = logoHeight / 2; // Position at top of envelope
-            flapWireframe.position.z = logoDepth / 2 + 0.01; // Slightly in front
-            flapWireframe.rotation.x = -Math.PI / 2; // Rotate to be horizontal
+            // Position flap at top of envelope, folded down
+            flapWireframe.position.y = logoHeight / 2;
+            flapWireframe.position.z = logoDepth / 2;
+            // Rotate flap down (folded over)
+            flapWireframe.rotation.x = -flapAngle; // Fold down at 45 degrees
+            flapWireframe.rotation.z = 0;
             flapWireframe.visible = false;
             envelopeGroup.add(flapWireframe);
 
@@ -4759,13 +4763,15 @@
                     y = (Math.random() * 2 - 1) * logoHeight / 2;
                     z = -logoDepth / 2;
                 } else if (surfaceType < 0.7) {
-                    // Triangular flap - front side (20%)
+                    // Triangular flap folded down (20%) - classic mail icon
                     const u = Math.random() * 2 - 1; // -1 to 1
                     const v = Math.random(); // 0 to 1
-                    x = u * logoWidth / 2;
-                    y = logoHeight / 2 + v * flapHeight;
-                    // Calculate z for triangular flap (sloped)
-                    z = logoDepth / 2 + (1 - v) * 0.1; // Slight slope
+                    // Flap is triangular, so constrain x based on v
+                    const maxX = (1 - v) * logoWidth / 2; // Triangle gets narrower toward tip
+                    x = (Math.random() * 2 - 1) * maxX;
+                    y = logoHeight / 2 + v * flapHeight * Math.cos(flapAngle);
+                    // Calculate z for folded flap (angled down)
+                    z = logoDepth / 2 + v * flapHeight * Math.sin(flapAngle);
                 } else if (surfaceType < 0.85) {
                     // Top edge of envelope body (15%)
                     x = (Math.random() * 2 - 1) * logoWidth / 2;
@@ -4784,15 +4790,7 @@
                     z = (Math.random() * 2 - 1) * logoDepth / 2;
                 }
                 
-                // Add "O" letter effect in center of front face (denser particles)
-                if (Math.random() < 0.15 && Math.abs(x) < 0.8 && Math.abs(y) < 0.8 && z > 0) {
-                    // Create circular "O" pattern
-                    const angle = Math.random() * Math.PI * 2;
-                    const radius = 0.3 + Math.random() * 0.3;
-                    x = Math.cos(angle) * radius;
-                    y = Math.sin(angle) * radius;
-                    z = logoDepth / 2 + 0.05; // Slightly in front
-                }
+                // Remove "O" pattern - focus on clean mail icon shape
                 
                 // Calculate normal vector (direction from center to surface point)
                 const center = new THREE.Vector3(0, 0, 0);
@@ -4872,11 +4870,16 @@
                 [[-logoWidth/2, logoHeight/2, logoDepth/2], [-logoWidth/2, logoHeight/2, -logoDepth/2]]
             ];
             
-            // Triangular flap edges for grid
+            // Triangular flap edges for grid (folded down - classic mail icon)
+            const flapTipY = logoHeight / 2 + flapHeight * Math.cos(flapAngle);
+            const flapTipZ = logoDepth / 2 + flapHeight * Math.sin(flapAngle);
             const flapEdgeLines = [
-                [[-logoWidth/2, logoHeight/2, logoDepth/2], [0, logoHeight/2 + flapHeight, logoDepth/2 + 0.1]],
-                [[0, logoHeight/2 + flapHeight, logoDepth/2 + 0.1], [logoWidth/2, logoHeight/2, logoDepth/2]],
-                [[-logoWidth/2, logoHeight/2, logoDepth/2], [logoWidth/2, logoHeight/2, logoDepth/2]] // Base of triangle
+                // Left edge of flap (from top-left to tip)
+                [[-logoWidth/2, logoHeight/2, logoDepth/2], [0, flapTipY, flapTipZ]],
+                // Right edge of flap (from tip to top-right)
+                [[0, flapTipY, flapTipZ], [logoWidth/2, logoHeight/2, logoDepth/2]],
+                // Base of triangle (top edge of envelope)
+                [[-logoWidth/2, logoHeight/2, logoDepth/2], [logoWidth/2, logoHeight/2, logoDepth/2]]
             ];
             
             [...bodyEdgeLines, ...flapEdgeLines].forEach(edge => {
