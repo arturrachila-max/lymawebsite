@@ -4758,8 +4758,8 @@
             const wireframeMaterial = new THREE.LineBasicMaterial({
                 color: 0x00FFE5, // Accent primary color
                 transparent: true,
-                opacity: 0.85,
-                linewidth: 1
+                opacity: 1.0, // Full opacity for visibility
+                linewidth: 2 // Increased for better visibility
             });
             const wireframe = new THREE.LineSegments(edges, wireframeMaterial);
             wireframe.visible = true; // Visible to show rotation
@@ -4844,7 +4844,7 @@
                     y: (Math.random() - 0.5) * 0.02,
                     z: (Math.random() - 0.5) * 0.02
                 });
-                scene.add(sprite);
+                // Don't add to scene yet - will add to group
             }
             
             // Group for easier control
