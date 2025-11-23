@@ -5122,12 +5122,25 @@
                 renderer.setSize(newWidth, newHeight);
             });
 
-            // Test render to verify Earth is visible
+            // Force immediate render to verify Earth is visible
             renderer.render(scene, camera);
-            console.log('Initial Earth render complete');
-            console.log('Scene children:', scene.children.length);
+            console.log('=== EARTH INITIALIZATION DEBUG ===');
+            console.log('Container:', container);
+            console.log('Container dimensions:', container.clientWidth, 'x', container.clientHeight);
+            console.log('Canvas:', renderer.domElement);
+            console.log('Canvas dimensions:', renderer.domElement.width, 'x', renderer.domElement.height);
+            console.log('Canvas style:', renderer.domElement.style.cssText);
+            console.log('Scene children count:', scene.children.length);
             console.log('Wireframe visible:', wireframe.visible);
+            console.log('Wireframe position:', wireframe.position);
+            console.log('Particle group visible:', particleGroup.visible);
             console.log('Particle count:', numberParticles.length);
+            console.log('Camera position:', camera.position);
+            console.log('Camera looking at:', camera.getWorldDirection(new THREE.Vector3()));
+            console.log('Initial Earth render complete');
+            
+            // Force canvas to be visible with inline styles
+            renderer.domElement.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative !important; width: ' + width + 'px !important; height: ' + height + 'px !important; z-index: 100 !important;';
             
             animate();
             
