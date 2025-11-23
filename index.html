@@ -5088,7 +5088,7 @@
                             const oscillation = Math.sin(time * 0.5 + timeOffset) * 0.2; // Reduced from 0.3
                             
                             // Move particles within sphere bounds
-                            const maxDistance = earthRadius * 0.3; // Reduced from 0.4
+                            const maxDistance = storedEarthRadius * 0.3; // Reduced from 0.4
                             const moveX = vel.x * oscillation * maxDistance;
                             const moveY = vel.y * oscillation * maxDistance;
                             const moveZ = vel.z * oscillation * maxDistance;
@@ -5100,7 +5100,7 @@
                             
                             // Ensure particles stay within sphere bounds
                             const distanceFromCenter = Math.sqrt(newX * newX + newY * newY + newZ * newZ);
-                            const maxRadius = earthRadius * 1.05; // Reduced from 1.1
+                            const maxRadius = storedEarthRadius * 1.05; // Reduced from 1.1
                             
                             if (distanceFromCenter > maxRadius) {
                                 // Normalize to sphere boundary
@@ -5121,7 +5121,7 @@
                             );
                             
                             // Opacity based on distance (see-through effect)
-                            const maxDist = earthRadius * 0.3; // Reduced from 0.4
+                            const maxDist = storedEarthRadius * 0.3; // Reduced from 0.4
                             const opacityFactor = Math.min(1, distance / maxDist);
                             sprite.material.opacity = Math.max(0.5, 0.85 - opacityFactor * 0.35); // Less transparent
                         });
