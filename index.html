@@ -4691,7 +4691,7 @@
                 linewidth: 1
             }));
             bodyWireframe.position.y = 0; // Center the body
-            bodyWireframe.visible = false;
+            bodyWireframe.visible = true; // Visible for better definition
             envelopeGroup.add(bodyWireframe);
 
             // Triangular flap folded down (classic mail icon style)
@@ -4715,7 +4715,7 @@
             // Rotate flap down (folded over)
             flapWireframe.rotation.x = -flapAngle; // Fold down at 45 degrees
             flapWireframe.rotation.z = 0;
-            flapWireframe.visible = false;
+            flapWireframe.visible = true; // Visible for better definition
             envelopeGroup.add(flapWireframe);
 
             envelopeGroup.position.y = 0.5;
@@ -4724,8 +4724,8 @@
             // Store references for animation
             const wireframe = envelopeGroup; // Use group as wireframe reference
 
-            // Number particles system (numbers 1-10) - Outlook logo made of numbers
-            const particleCount = 3000; // Optimized for performance
+            // Number particles system (numbers 1-10) - Mail icon made of numbers
+            const particleCount = 6000; // Increased for better definition
             const numberParticles = [];
             const particleVelocities = [];
             const numbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
@@ -4812,7 +4812,7 @@
                 
                 const sprite = new THREE.Sprite(spriteMaterial);
                 sprite.position.set(x, y, z);
-                sprite.scale.set(0.15, 0.15, 1); // Original size sprites
+                sprite.scale.set(0.2, 0.2, 1); // Larger sprites for better definition
                 
                 // Orient sprite to face outward from logo surface (perpendicular to face)
                 sprite.lookAt(
@@ -4895,7 +4895,7 @@
                 gridGroup.add(line);
             });
             
-            gridGroup.visible = false; // Hidden - Logo made of numbers
+            gridGroup.visible = true; // Visible for better definition
             gridGroup.position.y = 0.5; // Move logo slightly higher
             scene.add(gridGroup);
 
@@ -4913,15 +4913,10 @@
             directionalLight.position.set(5, 5, 5);
             scene.add(directionalLight);
 
-            // Mouse interaction
-            let mouseX = 0;
-            let mouseY = 0;
-            let targetRotationX = 0;
-            let targetRotationY = 0;
-
+            // No rotation - static mail icon
             // Inverted logic: disintegration by default, reassembly on hover
             isDisintegrating = true; // Start with disintegration effect
-            disintegrationProgress = 0.5; // Start at 50% disintegration
+            disintegrationProgress = 0.3; // Start at 30% disintegration (more visible)
             
             container.addEventListener('mouseenter', () => {
                 // On hover: reassemble logo
@@ -4931,7 +4926,7 @@
                 
                 // Animate particles back to original positions
                 numberParticles.forEach((sprite) => {
-                    sprite.material.opacity = 0.95; // Full opacity when assembled
+                    sprite.material.opacity = 1.0; // Full opacity when assembled
                 });
             });
 
@@ -4939,101 +4934,42 @@
                 // On leave: disintegrate again
                 isDisintegrating = true;
                 disintegrationProgress = 0.3; // Start disintegration
-                wireframe.visible = false;
+                wireframe.visible = true; // Keep wireframe visible
                 gridGroup.visible = false;
             });
 
-            document.addEventListener('mousemove', (event) => {
-                mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-                mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
-                targetRotationX = mouseY * 0.2;
-                targetRotationY = mouseX * 0.2;
-            });
-
-            // Animation
+            // Animation - No rotation, static mail icon
             const clock = new THREE.Clock();
-            let baseRotationY = 0;
-            let baseRotationX = 0;
             
             function animate() {
                 requestAnimationFrame(animate);
 
                 const elapsedTime = clock.getElapsedTime();
 
+                // No rotation - keep everything static
+                // Only subtle floating effect for visual interest
                 if (isDisintegrating) {
-                    // Beautiful automatic rotation with smooth easing (when see-through/disintegrating)
-                    const rotationSpeed = 0.3; // Slower, more elegant rotation
-                    baseRotationY += rotationSpeed * 0.016;
-                    
-                    // Add subtle vertical rotation (like Earth's tilt)
-                    baseRotationX = Math.sin(elapsedTime * 0.2) * 0.3; // Gentle tilt animation
-                    
-                    // Smooth rotation with easing
-                    wireframe.rotation.y = baseRotationY;
-                    wireframe.rotation.x = baseRotationX;
-                    
-                    // Apply to all groups
-                    gridGroup.rotation.y = baseRotationY;
-                    gridGroup.rotation.x = baseRotationX;
-                    particleGroup.rotation.y = baseRotationY;
-                    particleGroup.rotation.x = baseRotationX;
-                    
-                    // Add subtle pulsing scale effect
-                    const pulseScale = 1 + Math.sin(elapsedTime * 0.5) * 0.02; // Very subtle pulse (2%)
-                    particleGroup.scale.set(pulseScale, pulseScale, pulseScale);
-                    
-                    // Add gentle floating effect (vertical movement)
-                    const floatOffset = Math.sin(elapsedTime * 0.3) * 0.1;
-                    particleGroup.position.y = floatOffset;
-                    wireframe.position.y = floatOffset;
-                    gridGroup.position.y = floatOffset;
-                    
-                    // Smooth mouse parallax (only when mouse moves)
-                    const lerpFactor = 0.03; // Slower, smoother parallax
-                    const targetX = targetRotationX * 0.1; // Reduced parallax intensity
-                    const targetY = targetRotationY * 0.1;
-                    
-                    wireframe.rotation.x += (baseRotationX + targetX - wireframe.rotation.x) * lerpFactor;
-                    wireframe.rotation.y += (baseRotationY + targetY - wireframe.rotation.y) * lerpFactor;
-                    gridGroup.rotation.x = wireframe.rotation.x;
-                    gridGroup.rotation.y = wireframe.rotation.y;
-                    particleGroup.rotation.x = wireframe.rotation.x;
-                    particleGroup.rotation.y = wireframe.rotation.y;
+                    // Subtle floating effect (vertical movement only)
+                    const floatOffset = Math.sin(elapsedTime * 0.3) * 0.05; // Very subtle
+                    particleGroup.position.y = 0.5 + floatOffset;
+                    wireframe.position.y = 0.5 + floatOffset;
+                    gridGroup.position.y = 0.5 + floatOffset;
                 } else {
-                    // When assembled (hover), use mouse parallax
-                    const lerpFactor = 0.05;
-                    wireframe.rotation.x += (targetRotationX - wireframe.rotation.x) * lerpFactor;
-                    wireframe.rotation.y += (targetRotationY - wireframe.rotation.y) * lerpFactor;
-                    gridGroup.rotation.x = wireframe.rotation.x;
-                    gridGroup.rotation.y = wireframe.rotation.y;
-                    particleGroup.rotation.x = wireframe.rotation.x;
-                    particleGroup.rotation.y = wireframe.rotation.y;
+                    // When assembled (hover), keep static
+                    particleGroup.position.y = 0.5;
+                    wireframe.position.y = 0.5;
+                    gridGroup.position.y = 0.5;
                 }
                 
-                // Orient sprites to face outward from logo surface (perpendicular to face)
+                // Orient sprites to face camera for better visibility (no rotation needed)
                 numberParticles.forEach(sprite => {
                     const direction = sprite.userData.direction;
                     if (direction) {
                         // Get current world position
                         const worldPos = new THREE.Vector3();
                         sprite.getWorldPosition(worldPos);
-                        // Apply group rotation to direction vector
-                        const rotatedDirection = direction.clone();
-                        rotatedDirection.applyQuaternion(particleGroup.quaternion);
-                        // Orient sprite outward from center (maintains sphere shape)
-                        sprite.lookAt(
-                            worldPos.x + rotatedDirection.x,
-                            worldPos.y + rotatedDirection.y,
-                            worldPos.z + rotatedDirection.z
-                        );
-                        
-                        // Add subtle individual sprite animation when assembled (hover)
-                        if (!isDisintegrating) {
-                            const spriteIndex = numberParticles.indexOf(sprite);
-                            const spriteTime = elapsedTime + spriteIndex * 0.01; // Offset per sprite
-                            const spritePulse = 1 + Math.sin(spriteTime * 0.8) * 0.05; // Individual pulse
-                            // Opacity is controlled by reassembly animation, don't override here
-                        }
+                        // Orient sprite to face camera (better visibility for static icon)
+                        sprite.lookAt(camera.position);
                     }
                 });
 
