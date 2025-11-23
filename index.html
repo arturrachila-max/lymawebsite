@@ -4512,7 +4512,7 @@
             if (!element) return;
             
             const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
-            const columns = Math.floor(element.offsetWidth / 40); // Reduced density for better performance
+            const columns = Math.floor(element.offsetWidth / 60); // Further reduced density for better performance
             
             for (let i = 0; i < columns; i++) {
                 const column = document.createElement('div');
@@ -4521,7 +4521,7 @@
                 column.style.animationDuration = (Math.random() * 3 + 2) + 's';
                 column.style.animationDelay = Math.random() * 2 + 's';
                 
-                const charCount = Math.floor(Math.random() * 10) + 5; // Reduced character count
+                const charCount = Math.floor(Math.random() * 6) + 3; // Further reduced character count for performance
                 for (let j = 0; j < charCount; j++) {
                     const char = document.createElement('span');
                     char.className = 'matrix-char';
@@ -4540,11 +4540,16 @@
             createMatrix(heroMatrixBg);
         }
         
+        // Optimized resize handler - debounced
+        let resizeTimeout;
         window.addEventListener('resize', () => {
-            if (heroMatrixBg) {
-                heroMatrixBg.innerHTML = '';
-                createMatrix(heroMatrixBg);
-            }
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                if (heroMatrixBg) {
+                    heroMatrixBg.innerHTML = '';
+                    createMatrix(heroMatrixBg);
+                }
+            }, 250); // Debounce resize events
         });
 
         // Custom Cursor
@@ -4670,9 +4675,9 @@
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
             container.appendChild(renderer.domElement);
 
-            // Earth properties
+            // Earth properties - Optimized for speed
             const earthRadius = 2.5; // Earth radius
-            const earthSegments = 128; // Optimized for performance
+            const earthSegments = 64; // Reduced from 128 for better performance
 
             // High-detail sphere geometry
             const geometry = new THREE.SphereGeometry(earthRadius, earthSegments, earthSegments);
@@ -4691,7 +4696,7 @@
             scene.add(wireframe);
 
             // Number particles system (numbers 1-10) - Earth made of numbers
-            const particleCount = 3000; // Optimized for performance
+            const particleCount = 2000; // Reduced from 3000 for better performance
             const numberParticles = [];
             const particleVelocities = [];
             const numbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
@@ -4784,14 +4789,14 @@
             // Latitude/Longitude grid lines
             const latLongGroup = new THREE.Group();
             
-            // Longitude lines (vertical)
-            for (let i = 0; i <= 36; i++) {
+            // Longitude lines (vertical) - Reduced for performance
+            for (let i = 0; i <= 18; i++) { // Reduced from 36 to 18
                 const lonGeometry = new THREE.BufferGeometry();
                 const lonPoints = [];
-                const lon = (i / 36) * Math.PI * 2;
+                const lon = (i / 18) * Math.PI * 2;
                 
-                for (let j = 0; j <= 180; j++) {
-                    const lat = (j / 180) * Math.PI - Math.PI / 2;
+                for (let j = 0; j <= 90; j++) { // Reduced from 180 to 90
+                    const lat = (j / 90) * Math.PI - Math.PI / 2;
                     const x = Math.cos(lat) * Math.cos(lon) * earthRadius;
                     const y = Math.sin(lat) * earthRadius;
                     const z = Math.cos(lat) * Math.sin(lon) * earthRadius;
@@ -4806,14 +4811,14 @@
                 latLongGroup.add(lonLine);
             }
             
-            // Latitude lines (horizontal)
-            for (let i = 0; i <= 18; i++) {
+            // Latitude lines (horizontal) - Reduced for performance
+            for (let i = 0; i <= 9; i++) { // Reduced from 18 to 9
                 const latGeometry = new THREE.BufferGeometry();
                 const latPoints = [];
-                const lat = (i / 18) * Math.PI - Math.PI / 2;
+                const lat = (i / 9) * Math.PI - Math.PI / 2;
                 
-                for (let j = 0; j <= 72; j++) {
-                    const lon = (j / 72) * Math.PI * 2;
+                for (let j = 0; j <= 36; j++) { // Reduced from 72 to 36
+                    const lon = (j / 36) * Math.PI * 2;
                     const x = Math.cos(lat) * Math.cos(lon) * earthRadius;
                     const y = Math.sin(lat) * earthRadius;
                     const z = Math.cos(lat) * Math.sin(lon) * earthRadius;
@@ -4832,19 +4837,14 @@
             latLongGroup.position.y = 0.5; // Move Earth slightly higher
             scene.add(latLongGroup);
 
-            // Enhanced lighting for realism (logo color)
+            // Optimized lighting - Reduced lights for better performance
             const lightColor = 0x00FFE5; // Accent primary color
-            const ambientLight = new THREE.AmbientLight(lightColor, 0.5);
+            const ambientLight = new THREE.AmbientLight(lightColor, 0.6);
             scene.add(ambientLight);
             const pointLight = new THREE.PointLight(lightColor, 0.8);
             pointLight.position.set(10, 10, 10);
             scene.add(pointLight);
-            const pointLight2 = new THREE.PointLight(lightColor, 0.4);
-            pointLight2.position.set(-10, -10, -10);
-            scene.add(pointLight2);
-            const directionalLight = new THREE.DirectionalLight(lightColor, 0.3);
-            directionalLight.position.set(5, 5, 5);
-            scene.add(directionalLight);
+            // Removed extra lights for performance
 
             // Mouse interaction
             let mouseX = 0;
@@ -4883,119 +4883,140 @@
                 targetRotationY = mouseX * 0.2;
             });
 
-            // Animation - No rotation, static Earth
+            // Animation - Earth rotation
             const clock = new THREE.Clock();
+            let baseRotationY = 0;
             
             function animate() {
                 requestAnimationFrame(animate);
 
                 const elapsedTime = clock.getElapsedTime();
+                const deltaTime = clock.getDelta();
 
-                // No rotation - keep everything static
-                // Only subtle floating effect for visual interest
-                if (isDisintegrating) {
-                    // Subtle floating effect (vertical movement only)
-                    const floatOffset = Math.sin(elapsedTime * 0.3) * 0.05; // Very subtle
-                    particleGroup.position.y = 0.5 + floatOffset;
-                    wireframe.position.y = 0.5 + floatOffset;
-                    latLongGroup.position.y = 0.5 + floatOffset;
-                } else {
-                    // When assembled (hover), keep static
-                    particleGroup.position.y = 0.5;
-                    wireframe.position.y = 0.5;
-                    latLongGroup.position.y = 0.5;
+                // Continuous rotation animation
+                const rotationSpeed = 0.5; // Rotation speed
+                baseRotationY += rotationSpeed * deltaTime;
+                
+                // Apply rotation to all groups
+                particleGroup.rotation.y = baseRotationY;
+                wireframe.rotation.y = baseRotationY;
+                latLongGroup.rotation.y = baseRotationY;
+                
+                // Add mouse parallax when hovering
+                if (!isDisintegrating) {
+                    const lerpFactor = 0.05;
+                    const targetX = targetRotationX;
+                    const targetY = targetRotationY;
+                    wireframe.rotation.x += (targetX - wireframe.rotation.x) * lerpFactor;
+                    wireframe.rotation.y += (baseRotationY + targetY - wireframe.rotation.y) * lerpFactor;
+                    latLongGroup.rotation.x = wireframe.rotation.x;
+                    latLongGroup.rotation.y = wireframe.rotation.y;
+                    particleGroup.rotation.x = wireframe.rotation.x;
+                    particleGroup.rotation.y = wireframe.rotation.y;
                 }
                 
-                // Orient sprites to face outward from sphere center
-                numberParticles.forEach(sprite => {
-                    const direction = sprite.userData.direction;
-                    if (direction) {
-                        // Get current world position
-                        const worldPos = new THREE.Vector3();
-                        sprite.getWorldPosition(worldPos);
-                        // Apply group rotation to direction vector
-                        const rotatedDirection = direction.clone();
-                        rotatedDirection.applyQuaternion(particleGroup.quaternion);
-                        // Orient sprite outward from center
-                        sprite.lookAt(
-                            worldPos.x + rotatedDirection.x,
-                            worldPos.y + rotatedDirection.y,
-                            worldPos.z + rotatedDirection.z
-                        );
-                    }
-                });
-
-                // Number particle movement effect (wandering when disintegrating)
-                if (isDisintegrating) {
-                    // Continuous movement - particles "walk" within sphere bounds
-                    const time = elapsedTime;
-                    const movementSpeed = 0.02;
-                    
-                    numberParticles.forEach((sprite, i) => {
-                        const vel = particleVelocities[i];
-                        const originalPos = sprite.userData;
-                        
-                        // Calculate movement with time-based oscillation
-                        const timeOffset = i * 0.01;
-                        const oscillation = Math.sin(time * 0.5 + timeOffset) * 0.3;
-                        
-                        // Move particles within sphere bounds
-                        const maxDistance = earthRadius * 0.4;
-                        const moveX = vel.x * oscillation * maxDistance;
-                        const moveY = vel.y * oscillation * maxDistance;
-                        const moveZ = vel.z * oscillation * maxDistance;
-                        
-                        // Calculate new position
-                        let newX = originalPos.originalX + moveX;
-                        let newY = originalPos.originalY + moveY;
-                        let newZ = originalPos.originalZ + moveZ;
-                        
-                        // Ensure particles stay within sphere bounds
-                        const distanceFromCenter = Math.sqrt(newX * newX + newY * newY + newZ * newZ);
-                        const maxRadius = earthRadius * 1.1;
-                        
-                        if (distanceFromCenter > maxRadius) {
-                            // Normalize to sphere boundary
-                            const scale = maxRadius / distanceFromCenter;
-                            newX *= scale;
-                            newY *= scale;
-                            newZ *= scale;
+                // Subtle floating effect
+                const floatOffset = Math.sin(elapsedTime * 0.3) * 0.05;
+                particleGroup.position.y = 0.5 + floatOffset;
+                wireframe.position.y = 0.5 + floatOffset;
+                latLongGroup.position.y = 0.5 + floatOffset;
+                
+                // Orient sprites to face outward from sphere center - Optimized
+                // Only update every few frames for better performance
+                if (Math.floor(elapsedTime * 10) % 2 === 0) {
+                    numberParticles.forEach(sprite => {
+                        const direction = sprite.userData.direction;
+                        if (direction) {
+                            // Get current world position
+                            const worldPos = new THREE.Vector3();
+                            sprite.getWorldPosition(worldPos);
+                            // Apply group rotation to direction vector
+                            const rotatedDirection = direction.clone();
+                            rotatedDirection.applyQuaternion(particleGroup.quaternion);
+                            // Orient sprite outward from center
+                            sprite.lookAt(
+                                worldPos.x + rotatedDirection.x,
+                                worldPos.y + rotatedDirection.y,
+                                worldPos.z + rotatedDirection.z
+                            );
                         }
-                        
-                        // Apply position
-                        sprite.position.set(newX, newY, newZ);
-                        
-                        // Calculate distance from original position for opacity
-                        const distance = Math.sqrt(
-                            Math.pow(newX - originalPos.originalX, 2) +
-                            Math.pow(newY - originalPos.originalY, 2) +
-                            Math.pow(newZ - originalPos.originalZ, 2)
-                        );
-                        
-                        // Opacity based on distance (see-through effect)
-                        const maxDist = earthRadius * 0.4;
-                        const opacityFactor = Math.min(1, distance / maxDist);
-                        sprite.material.opacity = Math.max(0.4, 0.85 - opacityFactor * 0.45);
                     });
-                } else {
-                    // Reassemble: animate particles back to original positions
-                    disintegrationProgress = Math.max(0, disintegrationProgress - 0.05);
-                    
-                    numberParticles.forEach((sprite, i) => {
-                        // Smoothly return to original position
-                        sprite.position.x += (sprite.userData.originalX - sprite.position.x) * 0.1;
-                        sprite.position.y += (sprite.userData.originalY - sprite.position.y) * 0.1;
-                        sprite.position.z += (sprite.userData.originalZ - sprite.position.z) * 0.1;
+                }
+
+                // Number particle movement effect (wandering when disintegrating) - Optimized
+                // Only update every other frame for better performance
+                if (Math.floor(elapsedTime * 30) % 2 === 0) {
+                    if (isDisintegrating) {
+                        // Continuous movement - particles "walk" within sphere bounds
+                        const time = elapsedTime;
+                        const movementSpeed = 0.02;
                         
-                        // Increase opacity as particles return
-                        const distance = Math.sqrt(
-                            Math.pow(sprite.position.x - sprite.userData.originalX, 2) +
-                            Math.pow(sprite.position.y - sprite.userData.originalY, 2) +
-                            Math.pow(sprite.position.z - sprite.userData.originalZ, 2)
-                        );
-                        sprite.material.opacity = Math.min(0.95, 0.3 + (1 - distance / 2) * 0.65);
-                        sprite.visible = true;
-                    });
+                        numberParticles.forEach((sprite, i) => {
+                            const vel = particleVelocities[i];
+                            const originalPos = sprite.userData;
+                            
+                            // Calculate movement with time-based oscillation
+                            const timeOffset = i * 0.01;
+                            const oscillation = Math.sin(time * 0.5 + timeOffset) * 0.3;
+                            
+                            // Move particles within sphere bounds
+                            const maxDistance = earthRadius * 0.4;
+                            const moveX = vel.x * oscillation * maxDistance;
+                            const moveY = vel.y * oscillation * maxDistance;
+                            const moveZ = vel.z * oscillation * maxDistance;
+                            
+                            // Calculate new position
+                            let newX = originalPos.originalX + moveX;
+                            let newY = originalPos.originalY + moveY;
+                            let newZ = originalPos.originalZ + moveZ;
+                            
+                            // Ensure particles stay within sphere bounds
+                            const distanceFromCenter = Math.sqrt(newX * newX + newY * newY + newZ * newZ);
+                            const maxRadius = earthRadius * 1.1;
+                            
+                            if (distanceFromCenter > maxRadius) {
+                                // Normalize to sphere boundary
+                                const scale = maxRadius / distanceFromCenter;
+                                newX *= scale;
+                                newY *= scale;
+                                newZ *= scale;
+                            }
+                            
+                            // Apply position
+                            sprite.position.set(newX, newY, newZ);
+                            
+                            // Calculate distance from original position for opacity
+                            const distance = Math.sqrt(
+                                Math.pow(newX - originalPos.originalX, 2) +
+                                Math.pow(newY - originalPos.originalY, 2) +
+                                Math.pow(newZ - originalPos.originalZ, 2)
+                            );
+                            
+                            // Opacity based on distance (see-through effect)
+                            const maxDist = earthRadius * 0.4;
+                            const opacityFactor = Math.min(1, distance / maxDist);
+                            sprite.material.opacity = Math.max(0.4, 0.85 - opacityFactor * 0.45);
+                        });
+                    } else {
+                        // Reassemble: animate particles back to original positions
+                        disintegrationProgress = Math.max(0, disintegrationProgress - 0.05);
+                        
+                        numberParticles.forEach((sprite, i) => {
+                            // Smoothly return to original position
+                            sprite.position.x += (sprite.userData.originalX - sprite.position.x) * 0.1;
+                            sprite.position.y += (sprite.userData.originalY - sprite.position.y) * 0.1;
+                            sprite.position.z += (sprite.userData.originalZ - sprite.position.z) * 0.1;
+                            
+                            // Increase opacity as particles return
+                            const distance = Math.sqrt(
+                                Math.pow(sprite.position.x - sprite.userData.originalX, 2) +
+                                Math.pow(sprite.position.y - sprite.userData.originalY, 2) +
+                                Math.pow(sprite.position.z - sprite.userData.originalZ, 2)
+                            );
+                            sprite.material.opacity = Math.min(0.95, 0.3 + (1 - distance / 2) * 0.65);
+                            sprite.visible = true;
+                        });
+                    }
                 }
 
                 renderer.render(scene, camera);
