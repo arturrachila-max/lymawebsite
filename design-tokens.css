@@ -1,0 +1,183 @@
+/**
+ * LexGrid Design System - Design Tokens
+ * Version: 1.0.0
+ * "Simplicity That Eliminates Risk"
+ */
+
+:root {
+  /* ============================================
+     BRAND COLORS
+     ============================================ */
+  --color-deep-blue: #0B1F36;
+  --color-accent-blue: #123B63;
+  
+  /* ============================================
+     NEUTRALS
+     ============================================ */
+  --color-gray-100: #F4F6F8;
+  --color-gray-200: #E1E5EA;
+  --color-gray-400: #C9CED6;
+  --color-gray-700: #6C717C;
+  --color-gray-900: #3B4250;
+  --color-soft-black: #1A1A1A;
+  
+  /* ============================================
+     SUPPORTING COLORS
+     ============================================ */
+  --color-success: #2D5016;
+  --color-warning: #8B6914;
+  --color-danger: #A33131;
+  
+  /* ============================================
+     BACKGROUNDS
+     ============================================ */
+  --color-bg-base: #FFFFFF;
+  --color-bg-subtle: #F4F6F8;
+  --color-bg-elevated: #FAFBFC;
+  
+  /* ============================================
+     BORDERS
+     ============================================ */
+  --color-border-default: #E1E5EA;
+  --color-border-subtle: #F4F6F8;
+  --color-border-emphasis: #C9CED6;
+  
+  /* ============================================
+     INTERACTIVE
+     ============================================ */
+  --color-focus: #123B63;
+  --color-selection: rgba(18, 59, 99, 0.1);
+  --color-active: #0B1F36;
+  
+  /* ============================================
+     TYPOGRAPHY - DISPLAY / H1
+     ============================================ */
+  --font-display-family: "Times New Roman", "Times", serif;
+  --font-display-size: 44px;
+  --font-display-line-height: 52px;
+  --font-display-weight: 700;
+  --font-display-letter-spacing: -0.02em;
+  
+  /* ============================================
+     TYPOGRAPHY - H2
+     ============================================ */
+  --font-h2-family: "Times New Roman", "Times", serif;
+  --font-h2-size: 26px;
+  --font-h2-line-height: 32px;
+  --font-h2-weight: 700;
+  --font-h2-letter-spacing: 0;
+  
+  /* ============================================
+     TYPOGRAPHY - H3
+     ============================================ */
+  --font-h3-family: "Times New Roman", "Times", serif;
+  --font-h3-size: 18px;
+  --font-h3-line-height: 24px;
+  --font-h3-weight: 700;
+  --font-h3-letter-spacing: 0;
+  
+  /* ============================================
+     TYPOGRAPHY - H4
+     ============================================ */
+  --font-h4-family: "Times New Roman", "Times", serif;
+  --font-h4-size: 16px;
+  --font-h4-line-height: 22px;
+  --font-h4-weight: 600;
+  --font-h4-letter-spacing: 0;
+  
+  /* ============================================
+     TYPOGRAPHY - BODY
+     ============================================ */
+  --font-body-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-body-size: 14px;
+  --font-body-line-height: 22px;
+  --font-body-weight: 400;
+  --font-body-letter-spacing: 0;
+  
+  /* ============================================
+     TYPOGRAPHY - BODY LARGE
+     ============================================ */
+  --font-body-large-size: 16px;
+  --font-body-large-line-height: 24px;
+  
+  /* ============================================
+     TYPOGRAPHY - BODY SMALL
+     ============================================ */
+  --font-body-small-size: 13px;
+  --font-body-small-line-height: 20px;
+  
+  /* ============================================
+     TYPOGRAPHY - CAPTION
+     ============================================ */
+  --font-caption-size: 12px;
+  --font-caption-line-height: 18px;
+  
+  /* ============================================
+     TYPOGRAPHY - EYEBROW / OVERLINE
+     ============================================ */
+  --font-eyebrow-size: 12px;
+  --font-eyebrow-line-height: 16px;
+  --font-eyebrow-weight: 500;
+  --font-eyebrow-letter-spacing: 0.16em;
+  
+  /* ============================================
+     TYPOGRAPHY - UI / NAV
+     ============================================ */
+  --font-ui-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-ui-size: 12px;
+  --font-ui-line-height: 16px;
+  --font-ui-weight: 500;
+  --font-ui-letter-spacing: 0.16em;
+  
+  /* ============================================
+     TYPOGRAPHY - LABELS
+     ============================================ */
+  --font-label-size: 11px;
+  --font-label-line-height: 16px;
+  --font-label-weight: 600;
+  --font-label-letter-spacing: 0.08em;
+  
+  /* ============================================
+     SPACING SCALE (4px baseline)
+     ============================================ */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+  --spacing-20: 80px;
+  
+  /* ============================================
+     LAYOUT
+     ============================================ */
+  --container-width: 1120px;
+  --container-padding: 24px;
+  
+  /* ============================================
+     ELEVATION / SHADOWS
+     ============================================ */
+  --elevation-1: 0 1px 3px rgba(11, 31, 54, 0.05);
+  --elevation-2: 0 4px 12px rgba(11, 31, 54, 0.08);
+  --elevation-3: 0 8px 24px rgba(11, 31, 54, 0.12);
+  --elevation-4: 0 12px 32px rgba(11, 31, 54, 0.16);
+  
+  /* ============================================
+     BORDER RADIUS
+     ============================================ */
+  --radius-none: 0;
+  --radius-small: 2px;
+  --radius-medium: 4px;
+  
+  /* ============================================
+     TRANSITIONS
+     ============================================ */
+  --transition-fast: 0.2s ease;
+  --transition-base: 0.3s ease;
+  --transition-slow: 0.4s ease;
+}
+

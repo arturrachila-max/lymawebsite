@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LexGrid Design System - Component Showcase</title>
+    <link rel="stylesheet" href="design-tokens.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body-family);
+            font-size: var(--font-body-size);
+            line-height: var(--font-body-line-height);
+            color: var(--color-soft-black);
+            background-color: var(--color-bg-base);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .demo-container {
+            max-width: var(--container-width);
+            margin: 0 auto;
+            padding: var(--spacing-20) var(--container-padding);
+        }
+
+        .demo-section {
+            margin-bottom: var(--spacing-20);
+            padding-bottom: var(--spacing-20);
+            border-bottom: 1px solid var(--color-border-default);
+        }
+
+        .demo-section:last-child {
+            border-bottom: none;
+        }
+
+        .demo-title {
+            font-family: var(--font-h2-family);
+            font-size: var(--font-h2-size);
+            line-height: var(--font-h2-line-height);
+            font-weight: var(--font-h2-weight);
+            color: var(--color-deep-blue);
+            margin-bottom: var(--spacing-6);
+        }
+
+        .demo-subtitle {
+            font-size: var(--font-body-size);
+            color: var(--color-gray-700);
+            margin-bottom: var(--spacing-8);
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-6);
+            margin-top: var(--spacing-6);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0 22px;
+            height: 40px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            border: 1px solid;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            font-weight: 500;
+            font-family: var(--font-ui-family);
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-deep-blue) 0%, var(--color-accent-blue) 100%);
+            border-color: var(--color-deep-blue);
+            color: var(--color-bg-base);
+            box-shadow: var(--elevation-2);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--color-accent-blue) 0%, var(--color-deep-blue) 100%);
+            box-shadow: var(--elevation-3);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: var(--color-bg-base);
+            border-color: var(--color-border-default);
+            color: var(--color-soft-black);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--color-accent-blue);
+            color: var(--color-accent-blue);
+            box-shadow: var(--elevation-1);
+            transform: translateY(-1px);
+        }
+
+        /* Inputs */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-2);
+            margin-bottom: var(--spacing-6);
+        }
+
+        .input-group label {
+            font-size: var(--font-label-size);
+            font-weight: var(--font-label-weight);
+            text-transform: uppercase;
+            letter-spacing: var(--font-label-letter-spacing);
+            color: var(--color-gray-700);
+        }
+
+        .input-group input,
+        .input-group textarea {
+            padding: 12px 16px;
+            border: 1px solid var(--color-border-default);
+            background-color: var(--color-bg-base);
+            font-size: var(--font-body-size);
+            font-family: var(--font-body-family);
+            color: var(--color-soft-black);
+            transition: all var(--transition-fast);
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: var(--color-focus);
+            box-shadow: 0 0 0 2px var(--color-selection);
+        }
+
+        /* Cards */
+        .card {
+            background: linear-gradient(135deg, var(--color-bg-base) 0%, var(--color-bg-elevated) 100%);
+            border: 1px solid var(--color-border-default);
+            padding: var(--spacing-8);
+            box-shadow: var(--elevation-2);
+            transition: all var(--transition-base);
+        }
+
+        .card:hover {
+            box-shadow: var(--elevation-3);
+            transform: translateY(-2px);
+        }
+
+        .card-title {
+            font-family: var(--font-h3-family);
+            font-size: var(--font-h3-size);
+            line-height: var(--font-h3-line-height);
+            font-weight: var(--font-h3-weight);
+            color: var(--color-deep-blue);
+            margin-bottom: var(--spacing-4);
+        }
+
+        /* Badges */
+        .badge {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 8px 14px;
+            font-weight: 600;
+            border-radius: var(--radius-small);
+            box-shadow: var(--elevation-1);
+            display: inline-block;
+        }
+
+        .badge-risk {
+            background: linear-gradient(135deg, var(--color-danger) 0%, #8B2525 100%);
+            color: var(--color-bg-base);
+        }
+
+        .badge-positive {
+            background: linear-gradient(135deg, var(--color-deep-blue) 0%, var(--color-accent-blue) 100%);
+            color: var(--color-bg-base);
+        }
+
+        /* Typography Showcase */
+        .typography-sample {
+            margin-bottom: var(--spacing-6);
+            padding: var(--spacing-6);
+            background-color: var(--color-bg-subtle);
+            border-left: 3px solid var(--color-accent-blue);
+        }
+
+        .typography-label {
+            font-size: var(--font-caption-size);
+            color: var(--color-gray-700);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: var(--spacing-2);
+        }
+
+        /* Color Swatches */
+        .color-swatch {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-4);
+            padding: var(--spacing-4);
+            margin-bottom: var(--spacing-3);
+        }
+
+        .color-box {
+            width: 60px;
+            height: 60px;
+            border: 1px solid var(--color-border-default);
+            flex-shrink: 0;
+        }
+
+        .color-info {
+            flex: 1;
+        }
+
+        .color-name {
+            font-weight: 600;
+            color: var(--color-soft-black);
+            margin-bottom: var(--spacing-1);
+        }
+
+        .color-value {
+            font-size: var(--font-caption-size);
+            color: var(--color-gray-700);
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1 class="demo-title">LexGrid Design System</h1>
+        <p class="demo-subtitle">Component Showcase & Visual Reference</p>
+
+        <!-- Colors -->
+        <section class="demo-section">
+            <h2 class="demo-title">Color System</h2>
+            <div class="demo-grid">
+                <div class="color-swatch">
+                    <div class="color-box" style="background-color: var(--color-deep-blue);"></div>
+                    <div class="color-info">
+                        <div class="color-name">Deep Blue</div>
+                        <div class="color-value">#0B1F36</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box" style="background-color: var(--color-accent-blue);"></div>
+                    <div class="color-info">
+                        <div class="color-name">Accent Blue</div>
+                        <div class="color-value">#123B63</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box" style="background-color: var(--color-gray-100);"></div>
+                    <div class="color-info">
+                        <div class="color-name">Gray 100</div>
+                        <div class="color-value">#F4F6F8</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box" style="background-color: var(--color-gray-700);"></div>
+                    <div class="color-info">
+                        <div class="color-name">Gray 700</div>
+                        <div class="color-value">#6C717C</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box" style="background-color: var(--color-danger);"></div>
+                    <div class="color-info">
+                        <div class="color-name">Danger</div>
+                        <div class="color-value">#A33131</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Typography -->
+        <section class="demo-section">
+            <h2 class="demo-title">Typography Scale</h2>
+            
+            <div class="typography-sample">
+                <div class="typography-label">Display / H1</div>
+                <h1 style="font-family: var(--font-display-family); font-size: var(--font-display-size); line-height: var(--font-display-line-height); font-weight: var(--font-display-weight); letter-spacing: var(--font-display-letter-spacing); color: var(--color-deep-blue);">
+                    Simplicity That Eliminates Risk
+                </h1>
+            </div>
+
+            <div class="typography-sample">
+                <div class="typography-label">H2</div>
+                <h2 style="font-family: var(--font-h2-family); font-size: var(--font-h2-size); line-height: var(--font-h2-line-height); font-weight: var(--font-h2-weight); color: var(--color-deep-blue);">
+                    Built for firms that cannot afford missing emails
+                </h2>
+            </div>
+
+            <div class="typography-sample">
+                <div class="typography-label">H3</div>
+                <h3 style="font-family: var(--font-h3-family); font-size: var(--font-h3-size); line-height: var(--font-h3-line-height); font-weight: var(--font-h3-weight); color: var(--color-deep-blue);">
+                    Automated by default
+                </h3>
+            </div>
+
+            <div class="typography-sample">
+                <div class="typography-label">Body Medium</div>
+                <p style="font-family: var(--font-body-family); font-size: var(--font-body-size); line-height: var(--font-body-line-height); color: var(--color-gray-900);">
+                    We remove manual email logging from your workflow so your firm never has to ask: "Why is this email not in Salesforce?" Every message, every attachment—captured automatically, with legal-grade security.
+                </p>
+            </div>
+
+            <div class="typography-sample">
+                <div class="typography-label">Eyebrow / Overline</div>
+                <div style="font-family: var(--font-ui-family); font-size: var(--font-eyebrow-size); line-height: var(--font-eyebrow-line-height); font-weight: var(--font-eyebrow-weight); letter-spacing: var(--font-eyebrow-letter-spacing); color: var(--color-accent-blue); text-transform: uppercase;">
+                    Email Integrity for Salesforce
+                </div>
+            </div>
+        </section>
+
+        <!-- Buttons -->
+        <section class="demo-section">
+            <h2 class="demo-title">Buttons</h2>
+            <div style="display: flex; gap: var(--spacing-4); flex-wrap: wrap;">
+                <button class="btn btn-primary">REQUEST 15-MIN DEMO</button>
+                <button class="btn btn-secondary">VIEW SECURITY PACKET</button>
+            </div>
+        </section>
+
+        <!-- Inputs -->
+        <section class="demo-section">
+            <h2 class="demo-title">Form Inputs</h2>
+            <div style="max-width: 400px;">
+                <div class="input-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="name@firm.com">
+                </div>
+                <div class="input-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" rows="4" placeholder="Enter your message..."></textarea>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cards -->
+        <section class="demo-section">
+            <h2 class="demo-title">Cards</h2>
+            <div class="demo-grid">
+                <div class="card">
+                    <h3 class="card-title">Automated by default</h3>
+                    <p>No "Log to Salesforce" buttons. No extensions. No human decisions. Every inbound and outbound email is captured, classified, and written to Salesforce automatically.</p>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">Legal-grade architecture</h3>
+                    <p>A strict end-to-end design: encrypted ingestion, zero-egress workers, immutable logs. Engineered to withstand audits, discovery, and regulator scrutiny.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Badges -->
+        <section class="demo-section">
+            <h2 class="demo-title">Badges</h2>
+            <div style="display: flex; gap: var(--spacing-4); flex-wrap: wrap;">
+                <span class="badge badge-risk">RISK</span>
+                <span class="badge badge-risk">FRAGILE</span>
+                <span class="badge badge-positive">COMPLETE</span>
+                <span class="badge badge-positive">STABLE</span>
+                <span class="badge badge-positive">DEFENSIBLE</span>
+            </div>
+        </section>
+
+        <!-- Spacing Scale -->
+        <section class="demo-section">
+            <h2 class="demo-title">Spacing Scale</h2>
+            <div style="display: flex; flex-direction: column; gap: var(--spacing-4);">
+                <div style="display: flex; align-items: center; gap: var(--spacing-4);">
+                    <div style="width: var(--spacing-1); height: var(--spacing-1); background: var(--color-deep-blue);"></div>
+                    <span>4px (--spacing-1)</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--spacing-4);">
+                    <div style="width: var(--spacing-4); height: var(--spacing-4); background: var(--color-deep-blue);"></div>
+                    <span>16px (--spacing-4)</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--spacing-4);">
+                    <div style="width: var(--spacing-6); height: var(--spacing-6); background: var(--color-deep-blue);"></div>
+                    <span>24px (--spacing-6)</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--spacing-4);">
+                    <div style="width: var(--spacing-8); height: var(--spacing-8); background: var(--color-deep-blue);"></div>
+                    <span>32px (--spacing-8)</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--spacing-4);">
+                    <div style="width: var(--spacing-12); height: var(--spacing-12); background: var(--color-deep-blue);"></div>
+                    <span>48px (--spacing-12)</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Elevation -->
+        <section class="demo-section">
+            <h2 class="demo-title">Elevation System</h2>
+            <div class="demo-grid">
+                <div style="padding: var(--spacing-6); background: var(--color-bg-base); border: 1px solid var(--color-border-default);">
+                    <div style="font-weight: 600; margin-bottom: var(--spacing-2);">Level 0</div>
+                    <div>No shadow</div>
+                </div>
+                <div style="padding: var(--spacing-6); background: var(--color-bg-base); border: 1px solid var(--color-border-default); box-shadow: var(--elevation-1);">
+                    <div style="font-weight: 600; margin-bottom: var(--spacing-2);">Level 1</div>
+                    <div>Subtle shadow</div>
+                </div>
+                <div style="padding: var(--spacing-6); background: var(--color-bg-base); border: 1px solid var(--color-border-default); box-shadow: var(--elevation-2);">
+                    <div style="font-weight: 600; margin-bottom: var(--spacing-2);">Level 2</div>
+                    <div>Standard shadow</div>
+                </div>
+                <div style="padding: var(--spacing-6); background: var(--color-bg-base); border: 1px solid var(--color-border-default); box-shadow: var(--elevation-3);">
+                    <div style="font-weight: 600; margin-bottom: var(--spacing-2);">Level 3</div>
+                    <div>Elevated shadow</div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
+
