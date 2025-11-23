@@ -4645,7 +4645,7 @@
                 linewidth: 1
             });
             const wireframe = new THREE.LineSegments(edges, wireframeMaterial);
-            wireframe.visible = false; // Hidden - Earth made of numbers
+            wireframe.visible = true; // Visible to show rotation
             wireframe.position.y = 0.5; // Move Earth slightly higher
             scene.add(wireframe);
 
@@ -4826,7 +4826,7 @@
                 // On leave: disintegrate again
                 isDisintegrating = true;
                 disintegrationProgress = 0.3; // Start disintegration
-                wireframe.visible = false;
+                wireframe.visible = true; // Keep wireframe visible to show rotation
                 latLongGroup.visible = false;
             });
 
@@ -4847,12 +4847,17 @@
                 const deltaTime = clock.getDelta();
 
                 // Continuous rotation animation - Always active
-                const rotationSpeed = 0.8; // Rotation speed (increased for visibility)
+                const rotationSpeed = 1.0; // Rotation speed (increased for visibility)
                 
-                // Apply continuous rotation to all groups
-                particleGroup.rotation.y += rotationSpeed * deltaTime;
-                wireframe.rotation.y += rotationSpeed * deltaTime;
-                latLongGroup.rotation.y += rotationSpeed * deltaTime;
+                // Apply continuous rotation to all groups - MUST be applied every frame
+                particleGroup.rotation.y = (particleGroup.rotation.y || 0) + rotationSpeed * deltaTime;
+                wireframe.rotation.y = (wireframe.rotation.y || 0) + rotationSpeed * deltaTime;
+                latLongGroup.rotation.y = (latLongGroup.rotation.y || 0) + rotationSpeed * deltaTime;
+                
+                // Ensure rotation is always applied (prevent any reset)
+                if (isNaN(particleGroup.rotation.y)) particleGroup.rotation.y = 0;
+                if (isNaN(wireframe.rotation.y)) wireframe.rotation.y = 0;
+                if (isNaN(latLongGroup.rotation.y)) latLongGroup.rotation.y = 0;
                 
                 // Add mouse parallax when hovering
                 if (!isDisintegrating) {
@@ -4898,12 +4903,12 @@
                 }
 
                 // Number particle movement effect (wandering when disintegrating) - Optimized
-                // Only update every other frame for better performance
+                // Reduced movement to make rotation more visible
                 if (Math.floor(elapsedTime * 30) % 2 === 0) {
                     if (isDisintegrating) {
-                        // Continuous movement - particles "walk" within sphere bounds
+                        // Reduced movement - particles "walk" within sphere bounds (less movement for better rotation visibility)
                         const time = elapsedTime;
-                        const movementSpeed = 0.02;
+                        const movementSpeed = 0.01; // Reduced from 0.02
                         
                         numberParticles.forEach((sprite, i) => {
                             const vel = particleVelocities[i];
@@ -4911,22 +4916,22 @@
                             
                             // Calculate movement with time-based oscillation
                             const timeOffset = i * 0.01;
-                            const oscillation = Math.sin(time * 0.5 + timeOffset) * 0.3;
+                            const oscillation = Math.sin(time * 0.5 + timeOffset) * 0.2; // Reduced from 0.3
                             
                             // Move particles within sphere bounds
-                            const maxDistance = earthRadius * 0.4;
+                            const maxDistance = earthRadius * 0.3; // Reduced from 0.4
                             const moveX = vel.x * oscillation * maxDistance;
                             const moveY = vel.y * oscillation * maxDistance;
                             const moveZ = vel.z * oscillation * maxDistance;
                             
-                            // Calculate new position
+                            // Calculate new position relative to original (rotation will be applied by group)
                             let newX = originalPos.originalX + moveX;
                             let newY = originalPos.originalY + moveY;
                             let newZ = originalPos.originalZ + moveZ;
                             
                             // Ensure particles stay within sphere bounds
                             const distanceFromCenter = Math.sqrt(newX * newX + newY * newY + newZ * newZ);
-                            const maxRadius = earthRadius * 1.1;
+                            const maxRadius = earthRadius * 1.05; // Reduced from 1.1
                             
                             if (distanceFromCenter > maxRadius) {
                                 // Normalize to sphere boundary
@@ -4936,7 +4941,7 @@
                                 newZ *= scale;
                             }
                             
-                            // Apply position
+                            // Apply position (in local space - group rotation will rotate it)
                             sprite.position.set(newX, newY, newZ);
                             
                             // Calculate distance from original position for opacity
@@ -4947,16 +4952,16 @@
                             );
                             
                             // Opacity based on distance (see-through effect)
-                            const maxDist = earthRadius * 0.4;
+                            const maxDist = earthRadius * 0.3; // Reduced from 0.4
                             const opacityFactor = Math.min(1, distance / maxDist);
-                            sprite.material.opacity = Math.max(0.4, 0.85 - opacityFactor * 0.45);
+                            sprite.material.opacity = Math.max(0.5, 0.85 - opacityFactor * 0.35); // Less transparent
                         });
                     } else {
                         // Reassemble: animate particles back to original positions
                         disintegrationProgress = Math.max(0, disintegrationProgress - 0.05);
                         
                         numberParticles.forEach((sprite, i) => {
-                            // Smoothly return to original position
+                            // Smoothly return to original position (in local space)
                             sprite.position.x += (sprite.userData.originalX - sprite.position.x) * 0.1;
                             sprite.position.y += (sprite.userData.originalY - sprite.position.y) * 0.1;
                             sprite.position.z += (sprite.userData.originalZ - sprite.position.z) * 0.1;
