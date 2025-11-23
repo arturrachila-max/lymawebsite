@@ -4753,22 +4753,6 @@
             
             console.log('✅ Renderer initialized:', width, 'x', height);
             console.log('✅ Canvas added to container');
-            
-            // Add a simple visible test sphere FIRST
-            const testGeometry = new THREE.SphereGeometry(2, 32, 32);
-            const testMaterial = new THREE.MeshBasicMaterial({
-                color: 0x00FFE5,
-                wireframe: true,
-                transparent: false,
-                opacity: 1
-            });
-            const testSphere = new THREE.Mesh(testGeometry, testMaterial);
-            scene.add(testSphere);
-            console.log('✅ Test sphere added');
-            
-            // Render immediately
-            renderer.render(scene, camera);
-            console.log('✅ First render complete');
 
             // Earth properties - Optimized for speed
             const earthRadius = 2.5; // Earth radius
