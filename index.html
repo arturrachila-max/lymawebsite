@@ -690,6 +690,58 @@
             position: relative !important;
         }
 
+        /* Earth Notifications */
+        .earth-notifications {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 30;
+            overflow: visible;
+        }
+
+        .earth-notification {
+            position: absolute;
+            left: 50%;
+            top: 15%;
+            transform: translateX(-50%);
+            background: rgba(10, 14, 20, 0.95);
+            border: 1px solid var(--accent-primary);
+            border-radius: 2px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-family: var(--font-mono);
+            font-size: var(--font-size-sm);
+            color: var(--accent-primary);
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateX(-50%) translateY(-20px) scale(0.8);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            box-shadow: 
+                0 0 10px rgba(0, 255, 229, 0.3),
+                0 0 20px rgba(0, 255, 229, 0.2);
+            z-index: 31;
+            pointer-events: none;
+        }
+
+        .earth-notification.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0) scale(1);
+        }
+
+        .earth-notification.hide {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-40px) scale(0.9);
+        }
+
+        .earth-notification-icon {
+            display: inline-block;
+            margin-right: var(--spacing-xs);
+            color: var(--accent-primary);
+        }
+
         .eyebrow {
             display: inline-block;
             padding: var(--spacing-xs) var(--spacing-lg);
