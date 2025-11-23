@@ -5231,9 +5231,9 @@
                 const theta = 2 * Math.PI * u; // Azimuth angle (0 to 2π)
                 const phi = Math.acos(2 * v - 1); // Polar angle (0 to π)
                 
-                const x = earthRadius * Math.sin(phi) * Math.cos(theta);
-                const y = earthRadius * Math.sin(phi) * Math.sin(theta);
-                const z = earthRadius * Math.cos(phi);
+                const x = storedEarthRadius * Math.sin(phi) * Math.cos(theta);
+                const y = storedEarthRadius * Math.sin(phi) * Math.sin(theta);
+                const z = storedEarthRadius * Math.cos(phi);
                 
                 return new THREE.Vector3(x, y, z);
             }
