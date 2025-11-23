@@ -4847,17 +4847,32 @@
                 const deltaTime = clock.getDelta();
 
                 // Continuous rotation animation - Always active
-                const rotationSpeed = 1.0; // Rotation speed (increased for visibility)
+                const rotationSpeed = 1.2; // Rotation speed (radians per second)
+                
+                // Ensure deltaTime is valid
+                const safeDeltaTime = deltaTime > 0 && deltaTime < 1 ? deltaTime : 0.016; // Default to ~60fps
                 
                 // Apply continuous rotation to all groups - MUST be applied every frame
-                particleGroup.rotation.y = (particleGroup.rotation.y || 0) + rotationSpeed * deltaTime;
-                wireframe.rotation.y = (wireframe.rotation.y || 0) + rotationSpeed * deltaTime;
-                latLongGroup.rotation.y = (latLongGroup.rotation.y || 0) + rotationSpeed * deltaTime;
+                // Initialize rotation if not set
+                if (particleGroup.rotation.y === undefined || isNaN(particleGroup.rotation.y)) {
+                    particleGroup.rotation.y = 0;
+                }
+                if (wireframe.rotation.y === undefined || isNaN(wireframe.rotation.y)) {
+                    wireframe.rotation.y = 0;
+                }
+                if (latLongGroup.rotation.y === undefined || isNaN(latLongGroup.rotation.y)) {
+                    latLongGroup.rotation.y = 0;
+                }
                 
-                // Ensure rotation is always applied (prevent any reset)
-                if (isNaN(particleGroup.rotation.y)) particleGroup.rotation.y = 0;
-                if (isNaN(wireframe.rotation.y)) wireframe.rotation.y = 0;
-                if (isNaN(latLongGroup.rotation.y)) latLongGroup.rotation.y = 0;
+                // Increment rotation
+                particleGroup.rotation.y += rotationSpeed * safeDeltaTime;
+                wireframe.rotation.y += rotationSpeed * safeDeltaTime;
+                latLongGroup.rotation.y += rotationSpeed * safeDeltaTime;
+                
+                // Keep rotation in reasonable range (prevent overflow)
+                if (particleGroup.rotation.y > Math.PI * 2) particleGroup.rotation.y -= Math.PI * 2;
+                if (wireframe.rotation.y > Math.PI * 2) wireframe.rotation.y -= Math.PI * 2;
+                if (latLongGroup.rotation.y > Math.PI * 2) latLongGroup.rotation.y -= Math.PI * 2;
                 
                 // Add mouse parallax when hovering
                 if (!isDisintegrating) {
