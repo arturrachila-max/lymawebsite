@@ -5162,6 +5162,29 @@
                     }
                 }
 
+                // Update leak particles - numbers flowing downward
+                leakParticles.forEach((sprite, i) => {
+                    const vel = leakVelocities[i];
+                    sprite.position.x += vel.x;
+                    sprite.position.y += vel.y;
+                    sprite.position.z += vel.z;
+                    
+                    // Reset particle when it goes too far down
+                    if (sprite.position.y < -earthRadius * 3) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const radius = earthRadius * 0.9;
+                        sprite.position.x = radius * Math.cos(angle);
+                        sprite.position.y = -earthRadius * 0.8;
+                        sprite.position.z = radius * Math.sin(angle);
+                        vel.y = -0.05 - Math.random() * 0.1;
+                    }
+                    
+                    // Fade out as particles move down
+                    const distanceFromStart = Math.abs(sprite.position.y - vel.resetY);
+                    const maxDistance = earthRadius * 2;
+                    sprite.material.opacity = Math.max(0.1, 0.8 - (distanceFromStart / maxDistance) * 0.7);
+                });
+
                 renderer.render(scene, camera);
             }
 
