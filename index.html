@@ -4780,7 +4780,7 @@
                 canvas.height = 128;
                 const context = canvas.getContext('2d');
                 context.fillStyle = '#00FFE5';
-                context.font = 'bold 80px monospace';
+                context.font = 'bold 100px monospace'; // Increased for visibility
                 context.textAlign = 'center';
                 context.textBaseline = 'middle';
                 context.fillText(num, 64, 64);
@@ -4821,7 +4821,7 @@
                 
                 const sprite = new THREE.Sprite(spriteMaterial);
                 sprite.position.set(x, y, z);
-                sprite.scale.set(0.15, 0.15, 1);
+                sprite.scale.set(0.25, 0.25, 1); // Increased for visibility
                 
                 // Orient sprite to face outward from sphere center
                 sprite.lookAt(
