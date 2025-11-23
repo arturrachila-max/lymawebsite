@@ -103,9 +103,9 @@
             text-rendering: optimizeSpeed; /* Faster text rendering */
         }
 
-        /* Matrix Background - Single seamless fixed background for entire page */
-        .matrix-bg {
-            position: fixed;
+        /* Matrix Background - Only on hero section */
+        .hero .matrix-bg {
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
@@ -116,7 +116,7 @@
             pointer-events: none;
         }
 
-        /* Remove individual section matrix backgrounds - using single fixed one */
+        /* Hide matrix background in other sections */
         .section .matrix-bg {
             display: none;
         }
@@ -565,7 +565,7 @@
             min-height: 85vh;
             display: flex;
             align-items: center;
-            overflow: visible;
+            overflow: hidden; /* Changed to hidden to contain Matrix background */
             z-index: 1;
             isolation: isolate;
         }
@@ -4534,16 +4534,17 @@
             }
         }
         
-        // Initialize Matrix for all sections
-        document.querySelectorAll('.matrix-bg').forEach(bg => {
-            createMatrix(bg);
-        });
+        // Initialize Matrix only for hero section
+        const heroMatrixBg = document.getElementById('matrixBg');
+        if (heroMatrixBg) {
+            createMatrix(heroMatrixBg);
+        }
         
         window.addEventListener('resize', () => {
-            document.querySelectorAll('.matrix-bg').forEach(bg => {
-                bg.innerHTML = '';
-                createMatrix(bg);
-            });
+            if (heroMatrixBg) {
+                heroMatrixBg.innerHTML = '';
+                createMatrix(heroMatrixBg);
+            }
         });
 
         // Custom Cursor
