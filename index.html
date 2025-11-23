@@ -4919,50 +4919,66 @@
             latLongGroup.position.y = 0.5; // Move Earth slightly higher
             scene.add(latLongGroup);
             
-            // Number ring around Earth (like Saturn's rings)
-            const ringParticles = [];
-            const ringCount = 300; // Number of particles in the ring
-            const ringRadius = earthRadius * 1.8; // Ring radius
-            const ringThickness = earthRadius * 0.3; // Ring thickness
+            // Numbers fleeing from Earth - information leaking out
+            const fleeingParticles = [];
+            const fleeingVelocities = [];
+            const fleeingCount = 200; // Number of fleeing particles
             
-            // Create ring group BEFORE the loop
-            const ringGroup = new THREE.Group();
-            ringGroup.position.y = 0.5; // Match Earth position
-            scene.add(ringGroup);
+            // Create fleeing group
+            const fleeingGroup = new THREE.Group();
+            fleeingGroup.position.y = 0.5; // Match Earth position
+            scene.add(fleeingGroup);
             
-            for (let i = 0; i < ringCount; i++) {
-                // Distribute particles in a ring around Earth
-                const angle = (i / ringCount) * Math.PI * 2;
-                const radiusVariation = (Math.random() - 0.5) * ringThickness;
-                const ringRadiusFinal = ringRadius + radiusVariation;
+            for (let i = 0; i < fleeingCount; i++) {
+                // Start from random position on Earth surface
+                const u = Math.random();
+                const v = Math.random();
+                const theta = 2 * Math.PI * u; // Azimuth angle
+                const phi = Math.acos(2 * v - 1); // Polar angle
                 
-                const x = ringRadiusFinal * Math.cos(angle);
-                const y = (Math.random() - 0.5) * earthRadius * 0.2; // Slight vertical variation
-                const z = ringRadiusFinal * Math.sin(angle);
+                const startRadius = earthRadius * 1.1; // Start just outside Earth
+                const x = startRadius * Math.sin(phi) * Math.cos(theta);
+                const y = startRadius * Math.sin(phi) * Math.sin(theta);
+                const z = startRadius * Math.cos(phi);
+                
+                // Calculate direction away from Earth center (outward)
+                const direction = new THREE.Vector3(x, y, z).normalize();
                 
                 const num = numbers[Math.floor(Math.random() * numbers.length)];
                 const texture = numberTextures[num];
                 
-                const ringMaterial = new THREE.SpriteMaterial({
+                const fleeingMaterial = new THREE.SpriteMaterial({
                     map: texture,
                     transparent: true,
-                    opacity: 0.7,
+                    opacity: 0.8,
                     color: 0x00FFE5,
                     blending: THREE.NormalBlending
                 });
                 
-                const ringSprite = new THREE.Sprite(ringMaterial);
-                ringSprite.position.set(x, y, z);
-                ringSprite.scale.set(0.12, 0.12, 1);
+                const fleeingSprite = new THREE.Sprite(fleeingMaterial);
+                fleeingSprite.position.set(x, y, z);
+                fleeingSprite.scale.set(0.15, 0.15, 1);
                 
-                // Orient sprite to face camera (flat ring)
-                ringSprite.lookAt(camera.position);
+                // Store original position and direction
+                fleeingSprite.userData = {
+                    originalX: x,
+                    originalY: y,
+                    originalZ: z,
+                    direction: direction
+                };
                 
-                ringParticles.push(ringSprite);
-                ringGroup.add(ringSprite); // Add to ring group instead of scene directly
+                fleeingParticles.push(fleeingSprite);
+                fleeingVelocities.push({
+                    x: direction.x * (0.02 + Math.random() * 0.03), // Outward velocity
+                    y: direction.y * (0.02 + Math.random() * 0.03),
+                    z: direction.z * (0.02 + Math.random() * 0.03),
+                    speed: 0.02 + Math.random() * 0.03
+                });
+                
+                fleeingGroup.add(fleeingSprite);
             }
             
-            console.log('✅ Number ring added around Earth');
+            console.log('✅ Fleeing numbers effect added');
 
             // Optimized lighting - Reduced lights for better performance
             const lightColor = 0x00FFE5; // Accent primary color
@@ -5041,8 +5057,8 @@
                 particleGroup.rotation.y += rotationSpeed * safeDeltaTime;
                 wireframe.rotation.y += rotationSpeed * safeDeltaTime;
                 latLongGroup.rotation.y += rotationSpeed * safeDeltaTime;
-                if (ringGroup) {
-                    ringGroup.rotation.y += rotationSpeed * safeDeltaTime; // Rotate ring with Earth
+                if (fleeingGroup) {
+                    fleeingGroup.rotation.y += rotationSpeed * safeDeltaTime * 0.5; // Slight rotation
                 }
                 
                 // Keep rotation in reasonable range (prevent overflow)
