@@ -4839,7 +4839,6 @@
 
             // Animation - Earth rotation
             const clock = new THREE.Clock();
-            let baseRotationY = 0;
             
             function animate() {
                 requestAnimationFrame(animate);
@@ -4848,27 +4847,23 @@
                 const deltaTime = clock.getDelta();
 
                 // Continuous rotation animation - Always active
-                const rotationSpeed = 0.5; // Rotation speed
-                baseRotationY += rotationSpeed * deltaTime;
+                const rotationSpeed = 0.8; // Rotation speed (increased for visibility)
                 
-                // Apply base rotation to all groups
-                particleGroup.rotation.y = baseRotationY;
-                wireframe.rotation.y = baseRotationY;
-                latLongGroup.rotation.y = baseRotationY;
+                // Apply continuous rotation to all groups
+                particleGroup.rotation.y += rotationSpeed * deltaTime;
+                wireframe.rotation.y += rotationSpeed * deltaTime;
+                latLongGroup.rotation.y += rotationSpeed * deltaTime;
                 
-                // Add mouse parallax when hovering (adds to base rotation)
+                // Add mouse parallax when hovering
                 if (!isDisintegrating) {
                     const lerpFactor = 0.05;
                     const targetX = targetRotationX;
                     const targetY = targetRotationY;
                     wireframe.rotation.x += (targetX - wireframe.rotation.x) * lerpFactor;
-                    wireframe.rotation.y += (baseRotationY + targetY - wireframe.rotation.y) * lerpFactor;
                     latLongGroup.rotation.x = wireframe.rotation.x;
-                    latLongGroup.rotation.y = wireframe.rotation.y;
                     particleGroup.rotation.x = wireframe.rotation.x;
-                    particleGroup.rotation.y = wireframe.rotation.y;
                 } else {
-                    // When disintegrating, ensure rotation is still applied
+                    // When disintegrating, reset X rotation but keep Y rotation
                     wireframe.rotation.x = 0;
                     latLongGroup.rotation.x = 0;
                     particleGroup.rotation.x = 0;
