@@ -3683,7 +3683,9 @@
                 </div>
                 <div class="hero-right">
                     <div class="hero-visual code-security-visual">
-                        <div id="earth-container"></div>
+                        <div id="earth-container">
+                            <div class="earth-notifications" id="earthNotifications"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -5006,6 +5008,86 @@
             });
 
             animate();
+            
+            // Earth Notifications System
+            const notificationsContainer = document.getElementById('earthNotifications');
+            const notificationMessages = [
+                { icon: '✓', text: 'Email Saved' },
+                { icon: '✓', text: 'Task Created' },
+                { icon: '✓', text: 'Opportunity Updated' },
+                { icon: '✓', text: 'Contact Synced' },
+                { icon: '✓', text: 'Case Logged' },
+                { icon: '✓', text: 'Attachment Processed' },
+                { icon: '✓', text: 'Compliance Verified' },
+                { icon: '✓', text: 'Email Captured' },
+                { icon: '✓', text: 'Record Created' },
+                { icon: '✓', text: 'Data Synced' }
+            ];
+            
+            let activeNotifications = [];
+            let notificationIndex = 0;
+            
+            function createNotification() {
+                if (!notificationsContainer) return;
+                
+                // Remove old notifications (keep max 3 visible)
+                if (activeNotifications.length >= 3) {
+                    const oldNotif = activeNotifications.shift();
+                    if (oldNotif) {
+                        oldNotif.classList.add('hide');
+                        setTimeout(() => oldNotif.remove(), 300);
+                    }
+                }
+                
+                // Create new notification
+                const message = notificationMessages[notificationIndex % notificationMessages.length];
+                notificationIndex++;
+                
+                const notification = document.createElement('div');
+                notification.className = 'earth-notification';
+                notification.innerHTML = `<span class="earth-notification-icon">${message.icon}</span>${message.text}`;
+                
+                notificationsContainer.appendChild(notification);
+                activeNotifications.push(notification);
+                
+                // Trigger animation
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 10);
+                
+                // Auto-hide after 3 seconds
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    notification.classList.add('hide');
+                    setTimeout(() => {
+                        const index = activeNotifications.indexOf(notification);
+                        if (index > -1) activeNotifications.splice(index, 1);
+                        notification.remove();
+                    }, 300);
+                }, 3000);
+            }
+            
+            // Show notifications periodically
+            function startNotifications() {
+                // Show first notification after 2 seconds
+                setTimeout(() => {
+                    createNotification();
+                }, 2000);
+                
+                // Then show notifications every 4-6 seconds
+                setInterval(() => {
+                    createNotification();
+                }, 4000 + Math.random() * 2000);
+            }
+            
+            // Start notifications when Earth is initialized
+            if (window.THREE) {
+                setTimeout(startNotifications, 1000);
+            } else {
+                window.addEventListener('load', () => {
+                    setTimeout(startNotifications, 1500);
+                });
+            }
         }
 
         // Initialize Earth when Three.js is loaded - Lazy load for better performance
