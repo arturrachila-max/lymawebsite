@@ -4670,67 +4670,25 @@
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
             container.appendChild(renderer.domElement);
 
-            // 3D Waterfall properties
-            const waterfallWidth = 3; // Width of waterfall at top
-            const waterfallHeight = 5; // Height of waterfall
-            const waterfallDepth = 0.5; // Depth/thickness of waterfall
-            const waterfallSourceY = 2.5; // Top of waterfall
-            const waterfallBottomY = -2.5; // Bottom of waterfall
+            // 3D Rain Waterfall properties - numbers raining from above
+            const rainWidth = 4; // Width of rain area
+            const rainHeight = 6; // Height of rain fall area
+            const rainDepth = 1; // Depth of rain area
+            const rainTopY = 3.5; // Top where rain starts
+            const rainBottomY = -3.5; // Bottom where rain resets
 
-            // Create 3D waterfall group
-            const waterfallGroup = new THREE.Group();
-            
-            // Waterfall source (top edge) - wireframe
-            const sourceGeometry = new THREE.BoxGeometry(waterfallWidth, 0.2, waterfallDepth, 8, 1, 1);
-            const sourceEdges = new THREE.EdgesGeometry(sourceGeometry, 0.01);
-            const sourceWireframe = new THREE.LineSegments(sourceEdges, new THREE.LineBasicMaterial({
-                color: 0x00FFE5,
-                transparent: true,
-                opacity: 0.85,
-                linewidth: 1
-            }));
-            sourceWireframe.position.y = waterfallSourceY;
-            sourceWireframe.visible = true;
-            waterfallGroup.add(sourceWireframe);
-
-            // Waterfall main body - create as a curved surface
-            const waterfallCurve = new THREE.CatmullRomCurve3([
-                new THREE.Vector3(-waterfallWidth / 2, waterfallSourceY, 0),
-                new THREE.Vector3(-waterfallWidth / 3, waterfallSourceY * 0.5, 0),
-                new THREE.Vector3(0, 0, 0),
-                new THREE.Vector3(waterfallWidth / 3, waterfallSourceY * 0.5, 0),
-                new THREE.Vector3(waterfallWidth / 2, waterfallSourceY, 0)
-            ]);
-            
-            // Create waterfall surface using tube geometry
-            const waterfallTubeGeometry = new THREE.TubeGeometry(
-                waterfallCurve,
-                32,
-                waterfallDepth * 0.5,
-                8,
-                false
-            );
-            const waterfallEdges = new THREE.EdgesGeometry(waterfallTubeGeometry, 0.01);
-            const waterfallWireframe = new THREE.LineSegments(waterfallEdges, new THREE.LineBasicMaterial({
-                color: 0x00FFE5,
-                transparent: true,
-                opacity: 0.6,
-                linewidth: 1
-            }));
-            waterfallWireframe.visible = true;
-            waterfallGroup.add(waterfallWireframe);
-
-            waterfallGroup.position.y = 0;
-            scene.add(waterfallGroup);
+            // Create rain waterfall group (no wireframe structure, just particles)
+            const rainGroup = new THREE.Group();
+            rainGroup.position.y = 0;
+            scene.add(rainGroup);
             
             // Store references for animation
-            const wireframe = waterfallGroup; // Use group as wireframe reference
+            const wireframe = rainGroup; // Use group as reference
 
-            // Number particles system (numbers 1-10) - Waterfall made of numbers
-            const particleCount = 8000; // More particles for waterfall effect
+            // Number particles system (numbers 1-10) - Rain waterfall made of numbers
+            const particleCount = 10000; // More particles for dense rain effect
             const numberParticles = [];
             const particleVelocities = [];
-            const particleLifetimes = []; // Track particle lifetime for waterfall flow
             const numbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
             
             // Pre-create textures for all numbers (more efficient)
@@ -4750,20 +4708,17 @@
                 numberTextures[num] = texture;
             });
             
-            // Create number sprites for waterfall - particles flow downward
+            // Create number sprites raining from above - like a waterfall of numbers
             for (let i = 0; i < particleCount; i++) {
                 let x, y, z;
                 
-                // Waterfall particles start at top and flow down
-                // Distribute across waterfall width
-                x = (Math.random() * 2 - 1) * waterfallWidth / 2;
-                // Start at various heights (some already falling)
-                y = waterfallSourceY - Math.random() * waterfallHeight * 1.5; // Allow some to start below source
-                // Depth variation
-                z = (Math.random() * 2 - 1) * waterfallDepth / 2;
-                
-                // Add some randomness to create waterfall flow effect
-                x += (Math.random() - 0.5) * 0.3; // Slight horizontal spread
+                // Rain particles start at top and fall down like rain
+                // Distribute across rain area width
+                x = (Math.random() * 2 - 1) * rainWidth / 2;
+                // Start at various heights to create continuous rain effect
+                y = rainTopY - Math.random() * rainHeight * 2; // Spread across height
+                // Depth variation for 3D effect
+                z = (Math.random() * 2 - 1) * rainDepth / 2;
                 
                 // Remove "O" pattern - focus on clean mail icon shape
                 
@@ -4788,19 +4743,19 @@
                 sprite.lookAt(camera.position);
                 
                 sprite.userData = {
-                    startY: waterfallSourceY + Math.random() * 0.5, // Starting Y position
-                    speed: 0.05 + Math.random() * 0.1, // Falling speed (varies per particle)
-                    horizontalDrift: (Math.random() - 0.5) * 0.02, // Slight horizontal movement
+                    startY: rainTopY + Math.random() * 0.5, // Starting Y position at top
+                    speed: 0.08 + Math.random() * 0.15, // Falling speed (varies per particle for natural rain)
+                    horizontalDrift: (Math.random() - 0.5) * 0.03, // Slight horizontal movement
+                    rotationSpeed: (Math.random() - 0.5) * 0.05, // Slight rotation as it falls
                     number: num
                 };
                 
                 numberParticles.push(sprite);
                 particleVelocities.push({
-                    x: (Math.random() - 0.5) * 0.01,
+                    x: sprite.userData.horizontalDrift,
                     y: -sprite.userData.speed, // Downward velocity
-                    z: (Math.random() - 0.5) * 0.01
+                    z: (Math.random() - 0.5) * 0.02
                 });
-                particleLifetimes.push(Math.random()); // Random start time
                 scene.add(sprite);
             }
             
@@ -4860,39 +4815,46 @@
                 const elapsedTime = clock.getElapsedTime();
                 const deltaTime = clock.getDelta();
 
-                // Waterfall flow - particles continuously fall downward
+                // Rain waterfall - numbers continuously falling from above
                 numberParticles.forEach((sprite, i) => {
                     const userData = sprite.userData;
                     const vel = particleVelocities[i];
                     
-                    // Update position - particles fall downward
+                    // Update position - particles fall downward like rain
                     sprite.position.y -= userData.speed * deltaTime * 60; // Fall speed
                     sprite.position.x += userData.horizontalDrift * deltaTime * 60; // Slight horizontal drift
                     sprite.position.z += vel.z * deltaTime * 60; // Depth variation
                     
-                    // Reset particle to top when it reaches bottom (continuous waterfall)
-                    if (sprite.position.y < waterfallBottomY - 1) {
-                        sprite.position.y = waterfallSourceY + Math.random() * 0.5; // Reset to top
-                        sprite.position.x = (Math.random() * 2 - 1) * waterfallWidth / 2; // Random X at top
-                        sprite.position.z = (Math.random() * 2 - 1) * waterfallDepth / 2; // Random Z
-                        // Reset speed and drift for variety
-                        userData.speed = 0.05 + Math.random() * 0.1;
-                        userData.horizontalDrift = (Math.random() - 0.5) * 0.02;
+                    // Add slight rotation as it falls (like rain drops)
+                    sprite.rotation.z += userData.rotationSpeed * deltaTime;
+                    
+                    // Reset particle to top when it reaches bottom (continuous rain)
+                    if (sprite.position.y < rainBottomY) {
+                        sprite.position.y = rainTopY + Math.random() * 0.5; // Reset to top
+                        sprite.position.x = (Math.random() * 2 - 1) * rainWidth / 2; // Random X at top
+                        sprite.position.z = (Math.random() * 2 - 1) * rainDepth / 2; // Random Z
+                        // Reset speed, drift, and rotation for variety
+                        userData.speed = 0.08 + Math.random() * 0.15;
+                        userData.horizontalDrift = (Math.random() - 0.5) * 0.03;
+                        userData.rotationSpeed = (Math.random() - 0.5) * 0.05;
                         vel.y = -userData.speed;
+                        vel.x = userData.horizontalDrift;
+                        sprite.rotation.z = Math.random() * Math.PI * 2; // Random starting rotation
                     }
                     
-                    // Constrain particles within waterfall width
-                    if (Math.abs(sprite.position.x) > waterfallWidth / 2) {
-                        sprite.position.x = Math.sign(sprite.position.x) * waterfallWidth / 2;
+                    // Constrain particles within rain area width (soft boundary)
+                    if (Math.abs(sprite.position.x) > rainWidth / 2) {
+                        sprite.position.x = (Math.random() * 2 - 1) * rainWidth / 2; // Reset to random position in area
                     }
                     
                     // Orient sprite to face camera
                     sprite.lookAt(camera.position);
                     
-                    // Opacity based on position in waterfall (slightly more transparent at edges)
+                    // Opacity based on position (slightly more transparent at edges and when moving fast)
                     const distanceFromCenter = Math.abs(sprite.position.x);
-                    const opacityFactor = 1 - (distanceFromCenter / (waterfallWidth / 2)) * 0.2;
-                    sprite.material.opacity = Math.max(0.7, 0.9 * opacityFactor);
+                    const opacityFactor = 1 - (distanceFromCenter / (rainWidth / 2)) * 0.15;
+                    const speedFactor = 1 - (userData.speed / 0.23) * 0.1; // Slight fade for fast particles
+                    sprite.material.opacity = Math.max(0.6, 0.9 * opacityFactor * speedFactor);
                 });
 
                 // Keep wireframe static
