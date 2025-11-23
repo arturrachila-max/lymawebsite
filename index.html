@@ -4919,116 +4919,45 @@
             latLongGroup.position.y = 0.5; // Move Earth slightly higher
             scene.add(latLongGroup);
             
-            // Number leak effect - numbers flowing from bottom of Earth
-            const leakParticles = [];
-            const leakVelocities = [];
-            const leakCount = 150; // Number of leaking particles
+            // Number ring around Earth (like Saturn's rings)
+            const ringParticles = [];
+            const ringCount = 300; // Number of particles in the ring
+            const ringRadius = earthRadius * 1.8; // Ring radius
+            const ringThickness = earthRadius * 0.3; // Ring thickness
             
-            for (let i = 0; i < leakCount; i++) {
-                // Start from bottom of Earth sphere
-                const angle = Math.random() * Math.PI * 2;
-                const radius = earthRadius * 0.9; // Start near surface
-                const startX = radius * Math.cos(angle);
-                const startY = -earthRadius * 0.8; // Bottom of sphere
-                const startZ = radius * Math.sin(angle);
+            for (let i = 0; i < ringCount; i++) {
+                // Distribute particles in a ring around Earth
+                const angle = (i / ringCount) * Math.PI * 2;
+                const radiusVariation = (Math.random() - 0.5) * ringThickness;
+                const ringRadiusFinal = ringRadius + radiusVariation;
+                
+                const x = ringRadiusFinal * Math.cos(angle);
+                const y = (Math.random() - 0.5) * earthRadius * 0.2; // Slight vertical variation
+                const z = ringRadiusFinal * Math.sin(angle);
                 
                 const num = numbers[Math.floor(Math.random() * numbers.length)];
                 const texture = numberTextures[num];
                 
-                const leakMaterial = new THREE.SpriteMaterial({
+                const ringMaterial = new THREE.SpriteMaterial({
                     map: texture,
                     transparent: true,
-                    opacity: 0.8,
+                    opacity: 0.7,
                     color: 0x00FFE5,
                     blending: THREE.NormalBlending
                 });
                 
-                const leakSprite = new THREE.Sprite(leakMaterial);
-                leakSprite.position.set(startX, startY, startZ);
-                leakSprite.scale.set(0.15, 0.15, 1);
+                const ringSprite = new THREE.Sprite(ringMaterial);
+                ringSprite.position.set(x, y, z);
+                ringSprite.scale.set(0.12, 0.12, 1);
                 
-                leakParticles.push(leakSprite);
-                leakVelocities.push({
-                    x: (Math.random() - 0.5) * 0.02,
-                    y: -0.05 - Math.random() * 0.1, // Downward flow
-                    z: (Math.random() - 0.5) * 0.02,
-                    resetY: startY // Reset position when too far down
-                });
+                // Orient sprite to face camera (flat ring)
+                ringSprite.lookAt(camera.position);
                 
-                scene.add(leakSprite);
+                ringParticles.push(ringSprite);
+                scene.add(ringSprite);
             }
             
-            console.log('✅ Number leak effect added');
-            
-            // Visual connection between Earth and number fall
-            const connectionParticles = [];
-            const connectionCount = 50; // Particles in the connection stream
-            
-            // Add a glowing energy stream
-            const streamGeometry = new THREE.CylinderGeometry(earthRadius * 0.15, earthRadius * 0.3, earthRadius * 0.8, 16);
-            const streamMaterial = new THREE.MeshBasicMaterial({
-                color: 0x00FFE5,
-                transparent: true,
-                opacity: 0.2,
-                side: THREE.DoubleSide
-            });
-            const energyStream = new THREE.Mesh(streamGeometry, streamMaterial);
-            energyStream.position.y = -earthRadius * 1.1;
-            energyStream.rotation.x = Math.PI / 2;
-            scene.add(energyStream);
-            
-            // Add connection glow effect at Earth bottom
-            const glowGeometry = new THREE.RingGeometry(earthRadius * 0.25, earthRadius * 0.35, 32);
-            const glowMaterial = new THREE.MeshBasicMaterial({
-                color: 0x00FFE5,
-                transparent: true,
-                opacity: 0.3,
-                side: THREE.DoubleSide
-            });
-            const connectionGlow = new THREE.Mesh(glowGeometry, glowMaterial);
-            connectionGlow.position.y = -earthRadius * 0.8;
-            connectionGlow.rotation.x = -Math.PI / 2;
-            scene.add(connectionGlow);
-            
-            // Create connection lines
-            for (let i = 0; i < connectionCount; i++) {
-                const connectionGeometry = new THREE.BufferGeometry();
-                const connectionLineMaterial = new THREE.LineBasicMaterial({
-                    color: 0x00FFE5,
-                    transparent: true,
-                    opacity: 0.4,
-                    linewidth: 1
-                });
-                
-                const startY = -earthRadius * 0.8;
-                const endY = -earthRadius * 1.5;
-                const progress = i / connectionCount;
-                const currentY = startY + (endY - startY) * progress;
-                
-                // Spiral pattern for visual interest
-                const angle = progress * Math.PI * 4;
-                const radius = earthRadius * 0.3 * (1 - progress * 0.5);
-                const x = radius * Math.cos(angle);
-                const z = radius * Math.sin(angle);
-                
-                const points = [
-                    new THREE.Vector3(x, currentY, z),
-                    new THREE.Vector3(x, currentY - 0.2, z)
-                ];
-                connectionGeometry.setFromPoints(points);
-                
-                const connectionLine = new THREE.Line(connectionGeometry, connectionLineMaterial);
-                connectionParticles.push({
-                    line: connectionLine,
-                    baseY: currentY,
-                    angle: angle,
-                    radius: radius,
-                    progress: progress
-                });
-                scene.add(connectionLine);
-            }
-            
-            console.log('✅ Visual connection added between Earth and number fall');
+            console.log('✅ Number ring added around Earth');
 
             // Optimized lighting - Reduced lights for better performance
             const lightColor = 0x00FFE5; // Accent primary color
@@ -5265,65 +5194,13 @@
                 connectionGlow.rotation.z += 0.02;
                 connectionGlow.material.opacity = 0.25 + Math.sin(elapsedTime * 3) * 0.15;
                 
-                // Update connection particles - animated stream
-                if (connectionParticles && connectionParticles.length > 0) {
-                    connectionParticles.forEach((conn, i) => {
-                        const time = elapsedTime * 0.5;
-                        const angle = conn.progress * Math.PI * 4 + time;
-                        const radius = earthRadius * 0.3 * (1 - conn.progress * 0.5);
-                        const x = radius * Math.cos(angle);
-                        const z = radius * Math.sin(angle);
-                        
-                        const startY = -earthRadius * 0.8;
-                        const endY = -earthRadius * 1.5;
-                        const currentY = startY + (endY - startY) * conn.progress;
-                        
-                        // Update line positions
-                        const points = [
-                            new THREE.Vector3(x, currentY, z),
-                            new THREE.Vector3(x, currentY - 0.2, z)
-                        ];
-                        conn.line.geometry.setFromPoints(points);
-                        
-                        // Pulsing opacity
-                        conn.line.material.opacity = 0.3 + Math.sin(time * 2 + i) * 0.2;
+                // Update ring particles - rotate with Earth
+                if (ringParticles && ringParticles.length > 0) {
+                    ringParticles.forEach((sprite) => {
+                        // Keep sprites facing camera
+                        sprite.lookAt(camera.position);
                     });
                 }
-                
-                // Animate energy stream
-                if (energyStream) {
-                    energyStream.rotation.z += 0.01;
-                    energyStream.material.opacity = 0.15 + Math.sin(elapsedTime * 2) * 0.1;
-                }
-                
-                // Animate connection glow
-                if (connectionGlow) {
-                    connectionGlow.rotation.z += 0.02;
-                    connectionGlow.material.opacity = 0.25 + Math.sin(elapsedTime * 3) * 0.15;
-                }
-                
-                // Update leak particles - numbers flowing downward
-                leakParticles.forEach((sprite, i) => {
-                    const vel = leakVelocities[i];
-                    sprite.position.x += vel.x;
-                    sprite.position.y += vel.y;
-                    sprite.position.z += vel.z;
-                    
-                    // Reset particle when it goes too far down
-                    if (sprite.position.y < -earthRadius * 3) {
-                        const angle = Math.random() * Math.PI * 2;
-                        const radius = earthRadius * 0.9;
-                        sprite.position.x = radius * Math.cos(angle);
-                        sprite.position.y = -earthRadius * 0.8;
-                        sprite.position.z = radius * Math.sin(angle);
-                        vel.y = -0.05 - Math.random() * 0.1;
-                    }
-                    
-                    // Fade out as particles move down
-                    const distanceFromStart = Math.abs(sprite.position.y - vel.resetY);
-                    const maxDistance = earthRadius * 2;
-                    sprite.material.opacity = Math.max(0.1, 0.8 - (distanceFromStart / maxDistance) * 0.7);
-                });
 
                 renderer.render(scene, camera);
             }
