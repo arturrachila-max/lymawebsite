@@ -5099,6 +5099,10 @@
                 notification.className = 'earth-notification';
                 notification.innerHTML = `<span class="earth-notification-icon">${message.icon}</span>${message.text}`;
                 
+                // Position notification based on how many are already visible
+                const offsetY = activeNotifications.length * 45; // Stack notifications vertically
+                notification.style.top = `${15 + offsetY}%`;
+                
                 notificationsContainer.appendChild(notification);
                 activeNotifications.push(notification);
                 
@@ -5115,6 +5119,10 @@
                         const index = activeNotifications.indexOf(notification);
                         if (index > -1) activeNotifications.splice(index, 1);
                         notification.remove();
+                        // Reposition remaining notifications
+                        activeNotifications.forEach((notif, idx) => {
+                            notif.style.top = `${15 + idx * 45}%`;
+                        });
                     }, 300);
                 }, 3000);
             }
