@@ -4872,12 +4872,12 @@
             const latLongGroup = new THREE.Group();
             
             // Longitude lines (vertical) - Reduced for performance
-            for (let i = 0; i <= 18; i++) { // Reduced from 36 to 18
+            for (let i = 0; i <= 12; i++) { // Further reduced for performance
                 const lonGeometry = new THREE.BufferGeometry();
                 const lonPoints = [];
-                const lon = (i / 18) * Math.PI * 2;
+                const lon = (i / 12) * Math.PI * 2;
                 
-                for (let j = 0; j <= 90; j++) { // Reduced from 180 to 90
+                for (let j = 0; j <= 60; j++) { // Further reduced for performance
                     const lat = (j / 90) * Math.PI - Math.PI / 2;
                     const x = Math.cos(lat) * Math.cos(lon) * earthRadius;
                     const y = Math.sin(lat) * earthRadius;
@@ -4975,7 +4975,7 @@
                 const deltaTime = clock.getDelta();
 
                 // Continuous rotation animation - Always active
-                const rotationSpeed = 1.2; // Rotation speed (radians per second)
+                const rotationSpeed = 0.8; // Optimized rotation speed
                 
                 // Ensure deltaTime is valid
                 const safeDeltaTime = deltaTime > 0 && deltaTime < 1 ? deltaTime : 0.016; // Default to ~60fps
@@ -5047,7 +5047,7 @@
 
                 // Number particle movement effect (wandering when disintegrating) - Optimized
                 // Reduced movement to make rotation more visible
-                if (Math.floor(elapsedTime * 30) % 2 === 0) {
+                if (Math.floor(elapsedTime * 15) % 3 === 0) { // Reduced update frequency
                     if (isDisintegrating) {
                         // Reduced movement - particles "walk" within sphere bounds (less movement for better rotation visibility)
                         const time = elapsedTime;
