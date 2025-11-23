@@ -4646,9 +4646,9 @@
             const scene = new THREE.Scene();
             scene.background = null; // Transparent
 
-            // Camera - adjusted for Earth
+            // Camera - adjusted for Earth (more distant)
             const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
-            camera.position.set(0, 0, 12);
+            camera.position.set(0, 0, 16); // Increased from 12 to 16 for more distance
             camera.lookAt(0, 0, 0);
 
             // Renderer - Optimized for performance
