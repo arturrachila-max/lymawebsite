@@ -4958,6 +4958,9 @@
                 targetRotationY = mouseX * 0.2;
             });
 
+            // Declare continentGroup before animate function
+            let continentGroup = null;
+            
             // Animation - Earth rotation
             const clock = new THREE.Clock();
             
@@ -5337,7 +5340,7 @@
                 return continentGroup;
             }
             
-            const continentGroup = createContinents();
+            continentGroup = createContinents();
         }
 
         // Initialize Earth when Three.js is loaded - Lazy load for better performance
