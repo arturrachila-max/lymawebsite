@@ -4847,16 +4847,16 @@
                 const elapsedTime = clock.getElapsedTime();
                 const deltaTime = clock.getDelta();
 
-                // Continuous rotation animation
+                // Continuous rotation animation - Always active
                 const rotationSpeed = 0.5; // Rotation speed
                 baseRotationY += rotationSpeed * deltaTime;
                 
-                // Apply rotation to all groups
+                // Apply base rotation to all groups
                 particleGroup.rotation.y = baseRotationY;
                 wireframe.rotation.y = baseRotationY;
                 latLongGroup.rotation.y = baseRotationY;
                 
-                // Add mouse parallax when hovering
+                // Add mouse parallax when hovering (adds to base rotation)
                 if (!isDisintegrating) {
                     const lerpFactor = 0.05;
                     const targetX = targetRotationX;
@@ -4867,6 +4867,11 @@
                     latLongGroup.rotation.y = wireframe.rotation.y;
                     particleGroup.rotation.x = wireframe.rotation.x;
                     particleGroup.rotation.y = wireframe.rotation.y;
+                } else {
+                    // When disintegrating, ensure rotation is still applied
+                    wireframe.rotation.x = 0;
+                    latLongGroup.rotation.x = 0;
+                    particleGroup.rotation.x = 0;
                 }
                 
                 // Subtle floating effect
