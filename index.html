@@ -4959,6 +4959,76 @@
             }
             
             console.log('✅ Number leak effect added');
+            
+            // Visual connection between Earth and number fall
+            const connectionParticles = [];
+            const connectionCount = 50; // Particles in the connection stream
+            
+            // Add a glowing energy stream
+            const streamGeometry = new THREE.CylinderGeometry(earthRadius * 0.15, earthRadius * 0.3, earthRadius * 0.8, 16);
+            const streamMaterial = new THREE.MeshBasicMaterial({
+                color: 0x00FFE5,
+                transparent: true,
+                opacity: 0.2,
+                side: THREE.DoubleSide
+            });
+            const energyStream = new THREE.Mesh(streamGeometry, streamMaterial);
+            energyStream.position.y = -earthRadius * 1.1;
+            energyStream.rotation.x = Math.PI / 2;
+            scene.add(energyStream);
+            
+            // Add connection glow effect at Earth bottom
+            const glowGeometry = new THREE.RingGeometry(earthRadius * 0.25, earthRadius * 0.35, 32);
+            const glowMaterial = new THREE.MeshBasicMaterial({
+                color: 0x00FFE5,
+                transparent: true,
+                opacity: 0.3,
+                side: THREE.DoubleSide
+            });
+            const connectionGlow = new THREE.Mesh(glowGeometry, glowMaterial);
+            connectionGlow.position.y = -earthRadius * 0.8;
+            connectionGlow.rotation.x = -Math.PI / 2;
+            scene.add(connectionGlow);
+            
+            // Create connection lines
+            for (let i = 0; i < connectionCount; i++) {
+                const connectionGeometry = new THREE.BufferGeometry();
+                const connectionLineMaterial = new THREE.LineBasicMaterial({
+                    color: 0x00FFE5,
+                    transparent: true,
+                    opacity: 0.4,
+                    linewidth: 1
+                });
+                
+                const startY = -earthRadius * 0.8;
+                const endY = -earthRadius * 1.5;
+                const progress = i / connectionCount;
+                const currentY = startY + (endY - startY) * progress;
+                
+                // Spiral pattern for visual interest
+                const angle = progress * Math.PI * 4;
+                const radius = earthRadius * 0.3 * (1 - progress * 0.5);
+                const x = radius * Math.cos(angle);
+                const z = radius * Math.sin(angle);
+                
+                const points = [
+                    new THREE.Vector3(x, currentY, z),
+                    new THREE.Vector3(x, currentY - 0.2, z)
+                ];
+                connectionGeometry.setFromPoints(points);
+                
+                const connectionLine = new THREE.Line(connectionGeometry, connectionLineMaterial);
+                connectionParticles.push({
+                    line: connectionLine,
+                    baseY: currentY,
+                    angle: angle,
+                    radius: radius,
+                    progress: progress
+                });
+                scene.add(connectionLine);
+            }
+            
+            console.log('✅ Visual connection added between Earth and number fall');
 
             // Optimized lighting - Reduced lights for better performance
             const lightColor = 0x00FFE5; // Accent primary color
