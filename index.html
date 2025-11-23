@@ -5186,10 +5186,62 @@
                     }
                 }
 
-                // Update ring particles - keep facing camera
-                if (ringParticles && ringParticles.length > 0) {
-                    ringParticles.forEach((sprite) => {
-                        // Keep sprites facing camera (ring rotates with Earth via ringGroup)
+                // Update fleeing particles - numbers escaping from Earth
+                if (fleeingParticles && fleeingParticles.length > 0) {
+                    fleeingParticles.forEach((sprite, i) => {
+                        const vel = fleeingVelocities[i];
+                        const userData = sprite.userData;
+                        
+                        // Move particle outward from Earth
+                        sprite.position.x += vel.x;
+                        sprite.position.y += vel.y;
+                        sprite.position.z += vel.z;
+                        
+                        // Calculate distance from Earth center
+                        const distance = Math.sqrt(
+                            sprite.position.x * sprite.position.x +
+                            sprite.position.y * sprite.position.y +
+                            sprite.position.z * sprite.position.z
+                        );
+                        
+                        // Reset particle when it gets too far (max 3x Earth radius)
+                        if (distance > earthRadius * 3) {
+                            // Reset to new random position on Earth surface
+                            const u = Math.random();
+                            const v = Math.random();
+                            const theta = 2 * Math.PI * u;
+                            const phi = Math.acos(2 * v - 1);
+                            
+                            const startRadius = earthRadius * 1.1;
+                            const newX = startRadius * Math.sin(phi) * Math.cos(theta);
+                            const newY = startRadius * Math.sin(phi) * Math.sin(theta);
+                            const newZ = startRadius * Math.cos(phi);
+                            
+                            sprite.position.set(newX, newY, newZ);
+                            
+                            // New direction outward
+                            const direction = new THREE.Vector3(newX, newY, newZ).normalize();
+                            vel.x = direction.x * vel.speed;
+                            vel.y = direction.y * vel.speed;
+                            vel.z = direction.z * vel.speed;
+                            
+                            userData.originalX = newX;
+                            userData.originalY = newY;
+                            userData.originalZ = newZ;
+                            userData.direction = direction;
+                        }
+                        
+                        // Fade out as particles move away
+                        const maxDistance = earthRadius * 3;
+                        const fadeStart = earthRadius * 2;
+                        if (distance > fadeStart) {
+                            const fadeProgress = (distance - fadeStart) / (maxDistance - fadeStart);
+                            sprite.material.opacity = Math.max(0.1, 0.8 - fadeProgress * 0.7);
+                        } else {
+                            sprite.material.opacity = 0.8;
+                        }
+                        
+                        // Keep sprite facing camera
                         sprite.lookAt(camera.position);
                     });
                 }
