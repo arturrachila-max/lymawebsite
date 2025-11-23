@@ -5087,6 +5087,9 @@
                 particleGroup.position.y = 0.5 + floatOffset;
                 wireframe.position.y = 0.5 + floatOffset;
                 latLongGroup.position.y = 0.5 + floatOffset;
+                if (fleeingGroup) {
+                    fleeingGroup.position.y = 0.5 + floatOffset;
+                }
                 
                 // Orient sprites to face outward from sphere center - Optimized
                 // Only update every few frames for better performance
