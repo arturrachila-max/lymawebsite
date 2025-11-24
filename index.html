@@ -3964,6 +3964,137 @@
         </div>
     </section>
 
+    <!-- Workflow Section -->
+    <section id="workflow" class="section">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-number">04 / Workflow</div>
+                <h2 class="section-title">Data Flow: Outlook → LYMA → Salesforce</h2>
+                <p class="section-subtitle">
+                    Complete automated workflow from email capture to task creation.
+                </p>
+            </div>
+            <div class="workflow-container">
+                <div class="workflow-diagram">
+                    <!-- Step 1: Outlook -->
+                    <div class="workflow-step">
+                        <div class="workflow-step-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="5" width="18" height="14" rx="2"/>
+                                <path d="M3 8l9 6 9-6"/>
+                            </svg>
+                        </div>
+                        <div class="workflow-step-content">
+                            <div class="workflow-step-title">1. Email Arrives in Outlook</div>
+                            <div class="workflow-step-desc">
+                                <strong>Input:</strong> Client email received<br>
+                                <strong>Action:</strong> Outlook Add-in detects new email<br>
+                                <strong>Status:</strong> Automatic capture initiated
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Arrow -->
+                    <div class="workflow-arrow">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+
+                    <!-- Step 2: LYMA Processing -->
+                    <div class="workflow-step">
+                        <div class="workflow-step-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                <path d="M9 9h6v6H9z"/>
+                            </svg>
+                        </div>
+                        <div class="workflow-step-content">
+                            <div class="workflow-step-title">2. LYMA Processing</div>
+                            <div class="workflow-step-desc">
+                                <strong>AI Analysis:</strong> Email content analyzed<br>
+                                <strong>Extraction:</strong> Key info, action items, deadlines<br>
+                                <strong>Summary:</strong> Executive-ready summary generated<br>
+                                <strong>Time:</strong> 2-3 seconds
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="workflow-arrow">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+
+                    <!-- Step 3: Task Creation -->
+                    <div class="workflow-step">
+                        <div class="workflow-step-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 12l2 2 4-4"/>
+                                <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"/>
+                                <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"/>
+                            </svg>
+                        </div>
+                        <div class="workflow-step-content">
+                            <div class="workflow-step-title">3. Task Creation in Salesforce</div>
+                            <div class="workflow-step-desc">
+                                <strong>Auto-Create:</strong> Task generated with pre-filled fields<br>
+                                <strong>Fields:</strong> Subject, description, priority, due date<br>
+                                <strong>Linking:</strong> Auto-linked to Account/Contact/Opportunity<br>
+                                <strong>Approval:</strong> One-click review or auto-approved<br>
+                                <strong>Time:</strong> 5 seconds total
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="workflow-arrow">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+
+                    <!-- Step 4: Complete -->
+                    <div class="workflow-step">
+                        <div class="workflow-step-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                <path d="M2 17l10 5 10-5"/>
+                                <path d="M2 12l10 5 10-5"/>
+                            </svg>
+                        </div>
+                        <div class="workflow-step-content">
+                            <div class="workflow-step-title">4. Task Ready in Salesforce</div>
+                            <div class="workflow-step-desc">
+                                <strong>Result:</strong> Task visible in Salesforce<br>
+                                <strong>Status:</strong> Ready for assignment or review<br>
+                                <strong>Total Time:</strong> 7-8 seconds end-to-end<br>
+                                <strong>Coverage:</strong> 99.9% of emails processed
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workflow Metrics -->
+                <div class="workflow-metrics">
+                    <div class="workflow-metric">
+                        <div class="workflow-metric-value">7-8 sec</div>
+                        <div class="workflow-metric-label">End-to-End Time</div>
+                    </div>
+                    <div class="workflow-metric">
+                        <div class="workflow-metric-value">99.9%</div>
+                        <div class="workflow-metric-label">Success Rate</div>
+                    </div>
+                    <div class="workflow-metric">
+                        <div class="workflow-metric-value">Zero</div>
+                        <div class="workflow-metric-label">Manual Work</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Features Section -->
     <section id="features" class="section">
         <div class="container">
@@ -4287,7 +4418,7 @@
     <section id="architecture" class="section section-alt">
         <div class="container">
             <div class="section-header">
-                <div class="section-number">05 / Technical Architecture</div>
+                <div class="section-number">06 / Technical Architecture</div>
                 <h2 class="section-title">System Overview</h2>
                 <p class="section-subtitle">
                     Infrastructure and security for operations teams.
@@ -4314,7 +4445,7 @@
     <section id="comparison" class="section section-alt">
         <div class="container">
             <div class="section-header">
-                <div class="section-number">06 / Comparison</div>
+                <div class="section-number">07 / Comparison</div>
                 <h2 class="section-title">LYMA vs. Alternatives</h2>
                 <p class="section-subtitle">
                     Feature and capability comparison.
@@ -4379,7 +4510,7 @@
     <section id="security" class="section section-alt">
         <div class="container">
             <div class="section-header">
-                <div class="section-number">07 / Security & Compliance</div>
+                <div class="section-number">08 / Security & Compliance</div>
                 <h2 class="section-title">Security & Compliance</h2>
                 <p class="section-subtitle">
                     Certifications and compliance standards.
@@ -4410,7 +4541,7 @@
     <section id="testimonials" class="section">
         <div class="container">
             <div class="section-header">
-                <div class="section-number">08 / Deployment</div>
+                <div class="section-number">09 / Deployment</div>
                 <h2 class="section-title">Deployment Information</h2>
                 <p class="section-subtitle">
                     Implementation details for operations teams.
